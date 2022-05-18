@@ -1,0 +1,82 @@
+<document xmlns="http://cnx.rice.edu/cnxml" xmlns:m="http://www.w3.org/1998/Math/MathML" xmlns:md="http://cnx.rice.edu/mdml">
+  <title>M-Channel Filter Banks</title>
+  <metadata>
+  <md:content-id>m12775</md:content-id><md:title>M-Channel Filter Banks</md:title>
+  <md:abstract/>
+  <md:uuid>53feb58a-e647-47cb-bb1a-61cd9402d51f</md:uuid>
+</metadata>
+<featured-links>
+  <!-- WARNING! The 'featured-links' section is read only. Do not edit below.
+       Changes to the links section in the source will not be saved. -->
+    <link-group type="supplemental">
+      <link url="http://cnx.rice.edu/content/m12770/latest/" strength="3">Quadrature Mirror Filterbanks (QMF)</link>
+      <link url="http://cnx.rice.edu/content/col10144/latest/" strength="2">Digital Signal Processing (Ohio State EE700)`</link>
+      <link url="http://cnx.rice.edu/content/col10285/latest/" strength="2">Digital Filter Design</link>
+      <link url="http://cnx.rice.edu/content/col10280/latest/" strength="2">Adaptive Filters</link>
+      <link url="http://cnx.rice.edu/content/col10259/latest/" strength="2">Digital Filter Structures and Quantization Error Analysis</link>
+      <link url="http://cnx.rice.edu/content/col10281/latest/" strength="1">The DFT, FFT, and Practical Spectral Analysis</link>
+    </link-group>
+  <!-- WARNING! The 'featured-links' section is read only. Do not edit above.
+       Changes to the links section in the source will not be saved. -->
+</featured-links>
+<content>
+    <para id="para1">
+      The theory of M-band QMFBs and PRFBs has been investigated
+      recently.  Some results are available.
+    </para>
+
+    <section id="sec1">
+      <title>Tree-structured filter banks</title>
+      <para id="para2">
+	Once we have a two-band PRFB, we can continue to split the
+	subbands with similar systems! (<link target-id="fig1"/>)
+
+	<figure id="fig1">
+	  <media id="id20139025" alt="">
+            <image src="../../media/imag001-33b6.png" mime-type="image/png"/>
+            <image for="pdf" src="../../media/imag001-c879.eps" mime-type="application/postscript"/>
+          </media>
+	</figure>
+
+	Thus we can recursively decompose a signal into 
+	<m:math>
+	  <m:apply>
+	    <m:power/>
+	    <m:cn>2</m:cn>
+	    <m:ci>p</m:ci>
+	  </m:apply>
+	</m:math> bands, each sampled at  
+	<m:math>
+	  <m:apply>
+	    <m:power/>
+	    <m:cn>2</m:cn>
+	    <m:ci>p</m:ci>
+	  </m:apply>
+	</m:math>th the rate of the original signal, and reconstruct
+	exactly!  Due to the tree structure, this can be quite
+	efficient, and in fact close to the efficiency of an FFT
+	filter bank, which does <emphasis>not</emphasis> have perfect
+	reconstruction.
+      </para>
+    </section>
+
+    <section id="sec2">
+      <title>Wavelet decomposition</title>
+      <para id="para3">
+	We need not split both the upper-frequency and lower-frequency
+	bands identically. (<link target-id="fig2"/>)
+
+	<figure id="fig2">
+	  <media id="id5523314" alt="">
+            <image src="../../media/imag002-e8a1.png" mime-type="image/png"/>
+            <image for="pdf" src="../../media/imag002-3e58.eps" mime-type="application/postscript"/>
+          </media>
+	</figure>
+	This is good for image coding, because the energy tends to be
+	distributed such that after a wavelet decomposition, each band
+	has roughly equal energy.
+      </para>
+    </section>
+  </content>
+  
+</document>

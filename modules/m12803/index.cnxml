@@ -1,0 +1,630 @@
+<document xmlns="http://cnx.rice.edu/cnxml" xmlns:m="http://www.w3.org/1998/Math/MathML" xmlns:md="http://cnx.rice.edu/mdml">
+  <title>Multistage Multirate Systems</title>
+  <metadata>
+  <md:content-id>m12803</md:content-id><md:title>Multistage Multirate Systems</md:title>
+  <md:abstract/>
+  <md:uuid>af46c866-5066-4db1-9c97-6a9d98ddfcd3</md:uuid>
+</metadata>
+<featured-links>
+  <!-- WARNING! The 'featured-links' section is read only. Do not edit below.
+       Changes to the links section in the source will not be saved. -->
+    <link-group type="supplemental">
+      <link url="http://cnx.rice.edu/content/m12773/latest/" strength="3">Filter Design for Mulitrate Systems</link>
+      <link url="http://cnx.rice.edu/content/m12771/latest/" strength="3">DFT-Based Filterbanks</link>
+      <link url="http://cnx.rice.edu/content/col10144/latest/" strength="2">Digital Signal Processing (Ohio State EE700)</link>
+      <link url="http://cnx.rice.edu/content/col10285/latest/" strength="2">Digital Filter Design</link>
+      <link url="http://cnx.rice.edu/content/col10280/latest/" strength="2">Adaptive Filters</link>
+      <link url="http://cnx.rice.edu/content/col10259/latest/" strength="2">Digital Filter Structures and Quantization Error Analysis</link>
+      <link url="http://cnx.rice.edu/content/col10281/latest/" strength="1">The DFT, FFT, and Practical Spectral Analysis</link>
+    </link-group>
+  <!-- WARNING! The 'featured-links' section is read only. Do not edit above.
+       Changes to the links section in the source will not be saved. -->
+</featured-links>
+<content>
+    <para id="para1">
+      Multistage multirate systems are often more efficient.  Suppose
+    one wishes to decimate a signal by an integer factor
+    <m:math><m:ci>M</m:ci></m:math>, where
+    <m:math><m:ci>M</m:ci></m:math> is a composite integer 
+      <m:math>
+	<m:apply>
+	  <m:eq/>
+	  <m:ci>M</m:ci>
+	  <m:apply>
+	    <m:times/>
+	    <m:ci><m:msub>
+		<m:mi>M</m:mi>
+		<m:mn>1</m:mn>
+	      </m:msub></m:ci>
+	    <m:ci><m:msub>
+		<m:mi>M</m:mi>
+		<m:mn>2</m:mn>
+	      </m:msub></m:ci>
+	    <m:ci>…</m:ci>
+	    <m:ci><m:msub>
+		<m:mi>M</m:mi>
+		<m:mi>p</m:mi>
+	      </m:msub></m:ci>
+	  </m:apply>
+	  <m:apply>
+	    <m:product/>
+	    <m:bvar><m:ci>i</m:ci></m:bvar>
+	    <m:lowlimit><m:cn>1</m:cn></m:lowlimit>
+	    <m:uplimit><m:ci>p</m:ci></m:uplimit>
+	    <m:ci><m:msub>
+		<m:mi>M</m:mi>
+		<m:mi>i</m:mi>
+	      </m:msub></m:ci>
+	  </m:apply>
+	</m:apply>
+      </m:math>.  A decimator can be implemented in a multistage
+      fashion by first decimating by a factor
+      <m:math>
+	<m:ci><m:msub>
+	    <m:mi>M</m:mi>
+	    <m:mn>1</m:mn>
+	  </m:msub></m:ci>
+      </m:math>
+      , then decimating this signal by a factor 
+      <m:math>
+	<m:ci><m:msub>
+	    <m:mi>M</m:mi>
+	    <m:mn>2</m:mn>
+	  </m:msub></m:ci>
+      </m:math>
+      , <foreign>etc.</foreign> (<link target-id="fig1"/>)
+
+      <figure id="fig1">
+	<title>Multistage decimator</title>
+	<media id="id2488338" alt="">
+          <image src="../../media/imag001-6aa5.png" mime-type="image/png"/>
+          <image for="pdf" src="../../media/imag001-accc.eps" mime-type="application/postscript"/>
+        </media>
+      </figure>
+     
+      Multistage implementations are of significant practical interest
+      only if they offer significant computational savings.  In fact,
+      they often do!
+    </para>
+
+    <para id="para2">
+      The computational cost of a <emphasis>single-stage</emphasis>
+      interpolator is: 
+      <m:math display="block">
+	<m:apply>
+	  <m:times/>
+	  <m:apply>
+	    <m:divide/>
+	    <m:ci>N</m:ci>
+	    <m:apply>
+	      <m:times/>
+	      <m:ci>M</m:ci>
+	      <m:ci><m:msub>
+		  <m:mi>T</m:mi>
+		  <m:mn>0</m:mn>
+		</m:msub></m:ci>
+	    </m:apply>
+	  </m:apply>
+	  <m:apply>
+	    <m:divide/>
+	    <m:ci>taps</m:ci>
+	    <m:ci>sec</m:ci>
+	  </m:apply>
+	</m:apply>
+      </m:math>
+      The computational cost of a <emphasis>multistage</emphasis>
+      interpolator is:
+      <m:math display="block">
+	<m:apply>
+	  <m:plus/>
+	  <m:apply>
+	    <m:divide/>
+	    <m:ci><m:msub>
+		<m:mi>N</m:mi>
+		<m:mn>1</m:mn>
+	      </m:msub></m:ci>
+	    <m:apply>
+	      <m:times/>
+	      <m:ci><m:msub>
+		  <m:mi>M</m:mi>
+		  <m:mn>1</m:mn>
+		</m:msub></m:ci>
+	      <m:ci><m:msub>
+		  <m:mi>T</m:mi>
+		  <m:mn>0</m:mn>
+		</m:msub></m:ci>
+	    </m:apply>
+	  </m:apply>
+	  <m:apply>
+	    <m:divide/>
+	    <m:ci><m:msub>
+		<m:mi>N</m:mi>
+		<m:mn>2</m:mn>
+	      </m:msub></m:ci>
+	    <m:apply>
+	      <m:times/>
+	      <m:ci><m:msub>
+		  <m:mi>M</m:mi>
+		  <m:mn>1</m:mn>
+		</m:msub></m:ci>
+	      <m:ci><m:msub>
+		  <m:mi>M</m:mi>
+		  <m:mn>2</m:mn>
+		</m:msub></m:ci>
+	      <m:ci><m:msub>
+		  <m:mi>T</m:mi>
+		  <m:mn>0</m:mn>
+		</m:msub></m:ci>
+	    </m:apply>
+	  </m:apply>
+	  <m:ci>…</m:ci>
+	  <m:apply>
+	    <m:divide/>
+	      <m:ci><m:msub>
+		  <m:mi>N</m:mi>
+		  <m:mi>p</m:mi>
+		</m:msub></m:ci>
+	    <m:apply>
+	      <m:times/>
+	      <m:ci>M</m:ci>
+	      <m:ci><m:msub>
+		  <m:mi>T</m:mi>
+		  <m:mn>0</m:mn>
+		</m:msub></m:ci>
+	    </m:apply>
+	  </m:apply>
+	</m:apply>
+      </m:math>
+      The first term is the most significant, since the rate is
+      highest.  Since 
+      <m:math>
+	<m:apply>
+	  <m:ci><m:mo>∝</m:mo></m:ci>
+	  <m:ci><m:msub>
+	      <m:mi>N</m:mi>
+	      <m:mi>i</m:mi>
+	    </m:msub></m:ci>
+	  <m:ci><m:msub>
+	      <m:mi>M</m:mi>
+	      <m:mi>i</m:mi>
+	    </m:msub></m:ci>
+	</m:apply>
+      </m:math> for a lowpass filter, it is not immediately clear that
+      a multistage system should require less computation.  However,
+      the multistage structure relaxes the requirements on the
+      filters, which reduces their length and makes the overall
+      computation less.
+    </para>
+
+    <section id="sect1">
+      <title>Filter design for Multi-stage Structures</title>
+      <para id="para3">
+	Ostensibly, the first-stage filter must be a lowpass filter
+	with a cutoff at
+	<m:math>
+	  <m:apply>
+	    <m:divide/>
+	    <m:pi/>
+	    <m:ci><m:msub>
+		<m:mi>M</m:mi>
+		<m:mn>1</m:mn>
+	      </m:msub></m:ci>
+	  </m:apply>
+	</m:math>, to prevent aliasing after the downsampler.
+	However, note that aliasing outside the <emphasis>final
+	overall</emphasis> passband 
+	<m:math>
+	  <m:apply>
+	    <m:lt/>
+	    <m:apply>
+	      <m:abs/>
+	      <m:ci>ω</m:ci>
+	    </m:apply>
+	    <m:apply>
+	      <m:divide/>
+	      <m:pi/>
+	      <m:ci>M</m:ci>
+	    </m:apply>
+	  </m:apply>
+	</m:math> is of no concern, since it will be removed by later
+	stages.  We only need prevent aliasing into the band 
+	<m:math>
+	  <m:apply>
+	    <m:lt/>
+	    <m:apply>
+	      <m:abs/>
+	      <m:ci>ω</m:ci>
+	    </m:apply>
+	    <m:apply>
+	      <m:divide/>
+	      <m:pi/>
+	      <m:ci>M</m:ci>
+	    </m:apply>
+	  </m:apply>
+	</m:math>; thus we need only specify the passband over the interval
+	<m:math>
+	  <m:apply>
+	    <m:lt/>
+	    <m:apply>
+	      <m:abs/>
+	      <m:ci>ω</m:ci>
+	    </m:apply>
+	    <m:apply>
+	      <m:divide/>
+	      <m:pi/>
+	      <m:ci>M</m:ci>
+	    </m:apply>
+	  </m:apply>
+	</m:math>, and the stopband over the intervals 
+	<m:math>
+	  <m:apply>
+	    <m:in/>
+	    <m:ci>ω</m:ci>
+	    <m:interval>
+	      <m:apply>
+		<m:minus/>
+		<m:apply>
+		  <m:divide/>
+		  <m:apply>
+		    <m:times/>
+		    <m:cn>2</m:cn>
+		    <m:pi/>
+		    <m:ci>k</m:ci>
+		  </m:apply>
+		  <m:ci><m:msub>
+		      <m:mi>M</m:mi>
+		      <m:mn>1</m:mn>
+		    </m:msub></m:ci>
+		</m:apply>
+		<m:apply>
+		  <m:divide/>
+		  <m:pi/>
+		  <m:ci>M</m:ci>
+		</m:apply>
+	      </m:apply>
+	      <m:apply>
+		<m:plus/>
+		<m:apply>
+		  <m:divide/>
+		  <m:apply>
+		    <m:times/>
+		    <m:cn>2</m:cn>
+		    <m:pi/>
+		    <m:ci>k</m:ci>
+		  </m:apply>
+		  <m:ci><m:msub>
+		      <m:mi>M</m:mi>
+		      <m:mn>1</m:mn>
+		    </m:msub></m:ci>
+		</m:apply>
+		<m:apply>
+		  <m:divide/>
+		  <m:pi/>
+		  <m:ci>M</m:ci>
+		</m:apply>
+	      </m:apply>
+	    </m:interval>
+	  </m:apply>
+	</m:math>, for 
+	<m:math>
+	  <m:apply>
+	    <m:in/>
+	    <m:ci>k</m:ci>
+	    <m:set>
+	      <m:cn>1</m:cn>
+	      <m:ci>…</m:ci>
+	      <m:apply>
+		<m:minus/>
+		<m:ci>M</m:ci>
+		<m:cn>1</m:cn>
+	      </m:apply>
+	    </m:set>
+	  </m:apply>
+	</m:math>.  (<link target-id="fig2"/>)
+
+	<figure id="fig2">
+	  <media id="id7028854" alt="">
+            <image src="../../media/imag002-4d58.png" mime-type="image/png"/>
+            <image for="pdf" src="../../media/imag002-77fd.eps" mime-type="application/postscript"/>
+          </media>
+	</figure>
+
+	Of course, we don't want <emphasis>gain</emphasis> in the
+	transition bands, since this would need to be suppressed
+	later, but otherwise we don't care about the response in those
+	regions.  Since the transition bands are so large, the
+	required filter turns out to be quite short.  The final stage
+	has no "don't care" regions; however, it is operating at a low
+	rate, so it is relatively unimportant if the final filter
+	turns out to be rather long!
+     </para>
+    </section>
+
+    <section id="sec2">
+      <title>L-infinity Tolerances on the Pass and Stopbands</title>
+      <para id="para6">
+	The overall response is a cascade of multiple filters, so the
+	worst-case overall passband deviation, assuming all the peaks
+	just happen to line up, is 
+	<m:math display="block">
+	  <m:apply>
+	    <m:eq/>
+	    <m:apply>
+	      <m:plus/>
+	      <m:cn>1</m:cn>
+	      <m:ci><m:msub>
+		  <m:mi>δ</m:mi>
+		  <m:msub>
+		    <m:mi>p</m:mi>
+		    <m:mi>ov</m:mi>
+		  </m:msub>
+		</m:msub></m:ci>
+	    </m:apply>
+	    <m:apply>
+	      <m:product/>
+	      <m:bvar><m:ci>i</m:ci></m:bvar>
+	      <m:lowlimit><m:cn>1</m:cn></m:lowlimit>
+	      <m:uplimit><m:ci>p</m:ci></m:uplimit>
+	      <m:apply>
+		<m:plus/>
+		<m:cn>1</m:cn>
+		<m:ci><m:msub>
+		    <m:mi>δ</m:mi>
+		    <m:msub>
+		      <m:mi>p</m:mi>
+		      <m:mi>i</m:mi>
+		    </m:msub>
+		  </m:msub></m:ci>
+	      </m:apply>
+	    </m:apply>
+	  </m:apply>
+	</m:math>
+
+	<m:math display="block">
+	  <m:apply>
+	    <m:eq/>
+	    <m:apply>
+	      <m:minus/>
+	      <m:cn>1</m:cn>
+	      <m:ci><m:msub>
+		  <m:mi>δ</m:mi>
+		  <m:msub>
+		    <m:mi>p</m:mi>
+		    <m:mi>ov</m:mi>
+		  </m:msub>
+		</m:msub></m:ci>
+	    </m:apply>
+	    <m:apply>
+	      <m:product/>
+	      <m:bvar><m:ci>i</m:ci></m:bvar>
+	      <m:lowlimit><m:cn>1</m:cn></m:lowlimit>
+	      <m:uplimit><m:ci>p</m:ci></m:uplimit>
+	      <m:apply>
+		<m:minus/>
+		<m:cn>1</m:cn>
+		<m:ci><m:msub>
+		    <m:mi>δ</m:mi>
+		    <m:msub>
+		      <m:mi>p</m:mi>
+		      <m:mi>i</m:mi>
+		    </m:msub>
+		  </m:msub></m:ci>
+	      </m:apply>
+	    </m:apply>
+	  </m:apply>
+	</m:math>
+	So one could choose all filters to have equal specifications
+	and require for each-stage filter.  For 
+	<m:math>
+	  <m:apply>
+	    <m:ci><m:mo>≪</m:mo></m:ci>
+	    <m:ci><m:msub>
+		<m:mi>δ</m:mi>
+		<m:msub>
+		  <m:mi>p</m:mi>
+		  <m:mi>ov</m:mi>
+		</m:msub>
+	      </m:msub></m:ci>
+	    <m:cn>1</m:cn>
+	  </m:apply>
+	</m:math>, 
+
+	<m:math display="block">
+	  <m:apply>
+	    <m:leq/>
+	    <m:apply>
+	      <m:plus/>
+	      <m:cn>1</m:cn>
+	      <m:ci><m:msubsup>
+		  <m:mi>δ</m:mi>
+		  <m:msub>
+		    <m:mi>p</m:mi>
+		    <m:mi>i</m:mi>
+		  </m:msub>
+		  <m:mo>+</m:mo>
+		</m:msubsup></m:ci>
+	    </m:apply>
+	    <m:apply>
+	      <m:approx/>
+	      <m:apply>
+		<m:root/>
+		<m:degree><m:ci>p</m:ci></m:degree>
+		<m:apply>
+		  <m:plus/>
+		  <m:cn>1</m:cn>
+		  <m:ci><m:msub>
+		      <m:mi>δ</m:mi>
+		      <m:msub>
+			<m:mi>p</m:mi>
+			<m:mi>ov</m:mi>
+		      </m:msub>
+		    </m:msub></m:ci>
+		</m:apply>
+	      </m:apply>
+	      <m:apply>
+		<m:plus/>
+		<m:cn>1</m:cn>
+		<m:apply>
+		  <m:times/>
+		  <m:apply>
+		    <m:inverse/>
+		    <m:ci>p</m:ci>
+		  </m:apply>
+		  <m:ci><m:msub>
+		      <m:mi>δ</m:mi>
+		      <m:msub>
+			<m:mi>p</m:mi>
+			<m:mi>ov</m:mi>
+		      </m:msub>
+		    </m:msub></m:ci>
+		</m:apply>
+	      </m:apply>
+	    </m:apply>
+	  </m:apply>
+	</m:math>
+ 
+	<m:math display="block">
+	  <m:apply>
+	    <m:leq/>
+	    <m:apply>
+	      <m:minus/>
+	      <m:cn>1</m:cn>
+	      <m:ci><m:msubsup>
+		  <m:mi>δ</m:mi>
+		  <m:msub>
+		    <m:mi>p</m:mi>
+		    <m:mi>i</m:mi>
+		  </m:msub>
+		  <m:mo>-</m:mo>
+		</m:msubsup></m:ci>
+	    </m:apply>
+	    <m:apply>
+	      <m:approx/>
+	      <m:apply>
+		<m:root/>
+		<m:degree><m:ci>p</m:ci></m:degree>
+		<m:apply>
+		  <m:minus/>
+		  <m:cn>1</m:cn>
+		  <m:ci><m:msub>
+		      <m:mi>δ</m:mi>
+		      <m:msub>
+			<m:mi>p</m:mi>
+			<m:mi>ov</m:mi>
+		      </m:msub>
+		    </m:msub></m:ci>
+		</m:apply>
+	      </m:apply>
+	      <m:apply>
+		<m:minus/>
+		<m:cn>1</m:cn>
+		<m:apply>
+		  <m:times/>
+		  <m:apply>
+		    <m:inverse/>
+		    <m:ci>p</m:ci>
+		  </m:apply>
+		  <m:ci><m:msub>
+		      <m:mi>δ</m:mi>
+		      <m:msub>
+			<m:mi>p</m:mi>
+			<m:mi>ov</m:mi>
+		      </m:msub>
+		    </m:msub></m:ci>
+		</m:apply>
+	      </m:apply>
+	    </m:apply>
+	  </m:apply>
+	</m:math>
+	Alternatively, one can design later stages (at lower
+	computation rates) to compensate for the passband ripple in
+	earlier stages to achieve exceptionally accurate passband
+	response.
+      </para>
+
+      <para id="para7">
+	<m:math>
+	  <m:ci><m:msub>
+	      <m:mi>δ</m:mi>
+	      <m:mi>s</m:mi>
+	    </m:msub></m:ci>
+	</m:math>
+	remains essentially unchanged, since the worst-case scenario
+	is for the error to alias into the passband and undergo no
+	further suppression in subsequent stages.
+      </para>
+    </section>
+
+    <section id="sec3">
+      <title>Interpolation</title>
+      <para id="para8">
+	Interpolation is the flow-graph reversal of the multi-stage
+	decimator.  The first stage has a cutoff at 
+	<m:math>
+	  <m:apply>
+	    <m:divide/>
+	    <m:pi/>
+	    <m:ci>L</m:ci>
+	  </m:apply>
+	</m:math> (<link target-id="fig3"/>):  
+
+	<figure id="fig3">
+	  <media id="id3407429" alt="">
+            <image src="../../media/imag003-9853.png" mime-type="image/png"/>
+            <image for="pdf" src="../../media/imag003-cb7b.eps" mime-type="application/postscript"/>
+          </media>
+	</figure>
+
+	However, all subsequent stages have large bands without signal
+	energy, due to the earlier stages (<link target-id="fig4"/>):
+
+	<figure id="fig4">
+	  <media id="id6754646" alt="">
+            <image src="../../media/imag004-6dfb.png" mime-type="image/png"/>
+            <image for="pdf" src="../../media/imag004-eac5.eps" mime-type="application/postscript"/>
+          </media>
+	</figure>
+
+	The order of the filters is reversed, but otherwise the
+	filters are identical to the decimator filters.
+      </para>
+    </section>
+
+    <section id="sec5">
+      <title>Efficient Narrowband Lowpass Filtering</title>
+      <para id="para9">
+	A very narrow lowpass filter requires a very long FIR filter
+	to achieve reasonable resolution in the frequency
+	response. However, were the input sampled at a lower rate, the
+	cutoff frequency would be correspondingly higher, and the
+	filter could be shorter!
+      </para>
+
+      <para id="para10">
+	The transition band is also broader, which helps as well.
+	Thus, <link target-id="fig5"/> can be implemented as <link target-id="fig6"/>.
+
+	<figure id="fig5">
+	  <media id="id1172260542996" alt="">
+            <image src="../../media/imag005-dec2.png" mime-type="image/png"/>
+            <image for="pdf" src="../../media/imag005-de52.eps" mime-type="application/postscript"/>
+          </media>
+	</figure>
+
+	<figure id="fig6">
+	  <media id="id1172257366280" alt="">
+            <image src="../../media/imag006-cd69.png" mime-type="image/png"/>
+            <image for="pdf" src="../../media/imag006-8717.eps" mime-type="application/postscript"/>
+          </media>
+	</figure>
+
+	and in practice the inner lowpass filter can be coupled to the
+	decimator or interpolator filters.  If the decimator and
+	interpolator are implemented as multistage structures,
+	the overall algorithm can be dramatically more efficient than
+	direct implementation!
+      </para>
+    </section>
+  </content>
+  
+</document>

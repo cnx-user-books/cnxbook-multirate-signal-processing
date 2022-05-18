@@ -1,0 +1,488 @@
+<document xmlns="http://cnx.rice.edu/cnxml" xmlns:m="http://www.w3.org/1998/Math/MathML" xmlns:md="http://cnx.rice.edu/mdml">
+  <title>DFT-Based Filterbanks</title>
+  <metadata>
+  <md:content-id>m12771</md:content-id><md:title>DFT-Based Filterbanks</md:title>
+  <md:abstract/>
+  <md:uuid>30cd5166-141b-4baa-a633-cfe9d4f2f9de</md:uuid>
+</metadata>
+<featured-links>
+  <!-- WARNING! The 'featured-links' section is read only. Do not edit below.
+       Changes to the links section in the source will not be saved. -->
+    <link-group type="supplemental">
+      <link url="http://cnx.rice.edu/content/m12803/latest/" strength="3">Multistage Multirate Systems</link>
+      <link url="http://cnx.rice.edu/content/m12770/latest/" strength="3">Quadrature Mirror Filterbanks (QMF)</link>
+      <link url="http://cnx.rice.edu/content/m10412/latest/" strength="3">Perfect Reconstruction FIR Filter Banks</link>
+      <link url="http://cnx.rice.edu/content/col10144/latest/" strength="2">Digital Signal Processing (Ohio State EE700)</link>
+      <link url="http://cnx.rice.edu/content/col10280/latest/" strength="2">Adaptive Filters</link>
+      <link url="http://cnx.rice.edu/content/col10259/latest/" strength="2">Digital Filter Structures and Quantization Error Analysis</link>
+      <link url="http://cnx.rice.edu/content/col10281/latest/" strength="2">The DFT, FFT, and Practical Spectral Analysis</link>
+      <link url="http://cnx.rice.edu/content/m11136/latest/" strength="2">Perfect Reconstruction (PR)</link>
+    </link-group>
+  <!-- WARNING! The 'featured-links' section is read only. Do not edit above.
+       Changes to the links section in the source will not be saved. -->
+</featured-links>
+<content>
+    <para id="para1">
+      One common application of multirate processing arises in
+      multirate, multi-channel filter banks (<link target-id="fig1"/>).  
+
+      <figure id="fig1">
+	<media id="id1171774762538" alt="">
+          <image src="../../media/imag001-0cd6.png" mime-type="image/png"/>
+          <image for="pdf" src="../../media/imag001-0cb6.eps" mime-type="application/postscript"/>
+        </media>
+      </figure>
+
+      One application is separating frequency-division-multiplexed
+      channels.  If the filters are narrowband, the output channels
+      can be decimated without significant aliasing.
+    </para>
+
+    <para id="para2">
+      Such structures are especially attractive when they can be
+      implemented efficiently.  For example, if the filters are simply
+      frequency modulated (by 
+      <m:math>
+	<m:apply>
+	  <m:exp/>
+	  <m:apply>
+	    <m:minus/>
+	    <m:apply>
+	      <m:times/>
+	      <m:imaginaryi/>
+	      <m:apply>
+		<m:divide/>
+		<m:apply>
+		  <m:times/>
+		  <m:cn>2</m:cn>
+		  <m:pi/>
+		  <m:ci>k</m:ci>
+		</m:apply>
+		<m:ci>L</m:ci>
+	      </m:apply>
+	      <m:ci>n</m:ci>
+	    </m:apply>
+	  </m:apply>
+	</m:apply>
+      </m:math>) versions of each other, they can be efficiently
+      implemented using FFTs!
+    </para>
+
+    <para id="para3">
+      Furthermore, there are classes of filters called <term>perfect
+      reconstruction filters</term> <!-- good place for a cnxn-->
+      which are of finite length but from which the signal can be
+      reconstructed exactly (using all <m:math><m:ci>M</m:ci></m:math>
+      channels), even though the output of each channel experiences
+      aliasing in the decimation step.  These types of filterbanks
+      have received a lot of research attention, culminating in
+      wavelet theory and techniques.
+    </para>
+
+    <section id="sec1">
+      <title>Uniform DFT Filter Banks</title>
+      <para id="para4">
+	Suppose we wish to split a digital input signal into
+	<m:math><m:ci>N</m:ci></m:math> frequency bands, uniformly
+	spaced at center frequencies
+	<m:math>
+	  <m:apply>
+	    <m:eq/>
+	    <m:ci><m:msub>
+		<m:mi>ω</m:mi>
+		<m:mi>k</m:mi>
+	      </m:msub></m:ci>
+	    <m:apply>
+	      <m:divide/>
+	      <m:apply>
+		<m:times/>
+		<m:cn>2</m:cn>
+		<m:pi/>
+		<m:ci>k</m:ci>
+	      </m:apply>
+	      <m:ci>N</m:ci>
+	    </m:apply>
+	  </m:apply>
+	</m:math>, for 
+	<m:math>
+	  <m:apply>
+	    <m:leq/>
+	    <m:cn>0</m:cn>
+	    <m:ci>k</m:ci>
+	    <m:apply>
+	      <m:minus/>
+	      <m:ci>N</m:ci>
+	      <m:cn>1</m:cn>
+	    </m:apply>
+	  </m:apply>
+	</m:math>.  Consider also a lowpass filter 
+	<m:math>
+	  <m:apply>
+	    <m:ci type="fn">h</m:ci>
+	    <m:ci>n</m:ci>
+	  </m:apply>
+	</m:math>, 
+	<m:math>
+	  <m:apply>
+	    <m:approx/>
+	    <m:apply>
+	      <m:ci type="fn">H</m:ci>
+	      <m:ci>ω</m:ci>
+	    </m:apply>
+	    <m:piecewise>
+	      <m:piece>
+		<m:cn>1</m:cn>
+		<m:apply>
+		  <m:lt/>
+		  <m:apply>
+		    <m:abs/>
+		    <m:ci>ω</m:ci>
+		  </m:apply>
+		  <m:apply>
+		    <m:divide/>
+		    <m:pi/>
+		    <m:ci>N</m:ci>
+		  </m:apply>
+		</m:apply>
+	      </m:piece>
+	      <m:otherwise>
+		<m:cn>0</m:cn>
+	      </m:otherwise>
+	    </m:piecewise>
+	  </m:apply>
+	</m:math>.  Bandpass filters can be constructed which have the
+	frequency response 
+	<m:math display="block">
+	  <m:apply>
+	    <m:eq/>
+	    <m:apply>
+	      <m:ci type="fn"><m:msub>
+		  <m:mi>H</m:mi>
+		  <m:mi>k</m:mi>
+		</m:msub></m:ci>
+	      <m:ci>ω</m:ci>
+	    </m:apply>
+	    <m:apply>
+	      <m:ci type="fn">H</m:ci>
+	      <m:apply>
+		<m:plus/>
+		<m:ci>ω</m:ci>
+		<m:apply>
+		  <m:divide/>
+		  <m:apply>
+		    <m:times/>
+		    <m:cn>2</m:cn>
+		    <m:pi/>
+		    <m:ci>k</m:ci>
+		  </m:apply>
+		  <m:ci>N</m:ci>
+		</m:apply>
+	      </m:apply>
+	    </m:apply>
+	  </m:apply>
+	</m:math>
+	from
+	<m:math display="block">
+	  <m:apply>
+	    <m:eq/>
+	    <m:apply>
+	      <m:ci type="fn"><m:msub>
+		  <m:mi>h</m:mi>
+		  <m:mi>k</m:mi>
+		</m:msub></m:ci>
+	      <m:ci>n</m:ci>
+	    </m:apply>
+	    <m:apply>
+	      <m:times/>
+	      <m:apply>
+		<m:ci type="fn">h</m:ci>
+		<m:ci>n</m:ci>
+	      </m:apply>
+	      <m:apply>
+		<m:exp/>
+		<m:apply>
+		  <m:minus/>
+		  <m:apply>
+		    <m:times/>
+		    <m:imaginaryi/>
+		    <m:apply>
+		      <m:divide/>
+		      <m:apply>
+			<m:times/>
+			<m:cn>2</m:cn>
+			<m:pi/>
+			<m:ci>k</m:ci>
+			<m:ci>n</m:ci>
+		      </m:apply>
+		      <m:ci>N</m:ci>
+		    </m:apply>
+		  </m:apply>
+		</m:apply>
+	      </m:apply>
+	    </m:apply>
+	  </m:apply>
+	</m:math>
+	The output of the <m:math><m:ci>k</m:ci></m:math>th bandpass
+	filter is simply (assume
+	<m:math>
+	  <m:apply>
+	    <m:ci type="fn">h</m:ci>
+	    <m:ci>n</m:ci>
+	  </m:apply>
+	</m:math> are FIR) 
+
+	<equation id="eqn1">
+	  <m:math>
+	    <m:apply>
+	      <m:eq/>
+	      <m:apply>
+		<m:csymbol definitionURL="http://cnx.rice.edu/cd/cnxmath.ocd#convolve"/>
+		<m:apply>
+		  <m:ci type="fn">x</m:ci>
+		  <m:ci>n</m:ci>
+		</m:apply>
+		<m:apply>
+		  <m:ci type="fn"><m:msub>
+		      <m:mi>h</m:mi>
+		      <m:mi>k</m:mi>
+		    </m:msub></m:ci>
+		  <m:ci>n</m:ci>
+		</m:apply>
+	      </m:apply>
+
+	      <m:apply>
+		<m:sum/>
+		<m:bvar><m:ci>m</m:ci></m:bvar>
+		<m:lowlimit><m:cn>0</m:cn></m:lowlimit>
+		<m:uplimit>
+		  <m:apply>
+		    <m:minus/>
+		    <m:ci>M</m:ci>
+		    <m:cn>1</m:cn>
+		  </m:apply>
+		</m:uplimit>
+		<m:apply>
+		  <m:times/>
+		  <m:apply>
+		    <m:ci type="fn">x</m:ci>
+		    <m:apply>
+		      <m:minus/>
+		      <m:ci>n</m:ci>
+		      <m:ci>m</m:ci>
+		    </m:apply>
+		  </m:apply>
+		  <m:apply>
+		    <m:ci type="fn">h</m:ci>
+		    <m:ci>m</m:ci>
+		  </m:apply>
+		  <m:apply>
+		    <m:exp/>
+		    <m:apply>
+		      <m:minus/>
+		      <m:apply>
+			<m:times/>
+			<m:imaginaryi/>
+			<m:apply>
+			  <m:divide/>
+			  <m:apply>
+			    <m:times/>
+			    <m:cn>2</m:cn>
+			    <m:pi/>
+			    <m:ci>k</m:ci>
+			    <m:ci>m</m:ci>
+			  </m:apply>
+			  <m:ci>N</m:ci>
+			</m:apply>
+		      </m:apply>
+		    </m:apply>
+		  </m:apply>
+		</m:apply>
+	      </m:apply>
+
+	      <m:apply>
+		<m:ci type="fn"><m:msub>
+		    <m:mi>y</m:mi>
+		    <m:mi>k</m:mi>
+		  </m:msub></m:ci>
+		<m:ci>n</m:ci>
+	      </m:apply>
+	    </m:apply>
+	  </m:math>
+	</equation>
+	This looks suspiciously like a DFT, except that 
+	<m:math>
+	  <m:apply>
+	    <m:neq/>
+	    <m:ci>M</m:ci>
+	    <m:ci>N</m:ci>
+	  </m:apply>
+	</m:math>, in general.  However, if we fix 
+	<m:math>
+	  <m:apply>
+	    <m:eq/>
+	    <m:ci>M</m:ci>
+	    <m:ci>N</m:ci>
+	  </m:apply>
+	</m:math>, then we can compute <emphasis>all</emphasis> 
+	<m:math>
+	  <m:apply>
+	    <m:ci type="fn"><m:msub>
+		<m:mi>y</m:mi>
+		<m:mi>k</m:mi>
+	      </m:msub></m:ci>
+	    <m:ci>n</m:ci>
+	  </m:apply>
+	</m:math> outputs simultaneously using an FFT of 
+	<m:math>
+	  <m:apply>
+	    <m:times/>
+	    <m:apply>
+	      <m:ci type="fn">x</m:ci>
+	      <m:apply>
+		<m:minus/>
+		<m:ci>n</m:ci>
+		<m:ci>m</m:ci>
+	      </m:apply>
+	    </m:apply>
+	    <m:apply>
+	      <m:ci type="fn">h</m:ci>
+	      <m:ci>m</m:ci>
+	    </m:apply>
+	  </m:apply>
+	</m:math>:  The 
+	<m:math>
+	  <m:apply>
+	    <m:eq/>
+	    <m:mtext>kth FFT frequency output</m:mtext>
+	    <m:apply>
+	      <m:ci type="fn"><m:msub>
+		  <m:mi>y</m:mi>
+		  <m:mi>k</m:mi>
+		</m:msub></m:ci>
+	      <m:ci>n</m:ci>
+	    </m:apply>
+	  </m:apply>
+	</m:math>!  So the cost of computing all of these filter banks
+	outputs is 
+	<m:math>
+	  <m:apply>
+	    <m:ci type="fn" class="discrete">O</m:ci>
+	    <m:apply>
+	      <m:times/>
+	      <m:ci>N</m:ci>
+	      <m:apply>
+		<m:log/>
+		<m:ci>N</m:ci>
+	      </m:apply>
+	    </m:apply>
+	  </m:apply>
+	</m:math>, rather than 
+	<m:math>
+	  <m:apply>
+	    <m:power/>
+	    <m:ci>N</m:ci>
+	    <m:cn>2</m:cn>
+	  </m:apply>
+	</m:math>, per a given <m:math><m:ci>n</m:ci></m:math>.  This
+	is very useful for efficient implementation of
+	<term>transmultiplexors</term> (FDM to TDM).
+      </para>
+
+      <exercise id="ex1">
+	<problem id="id6466872">
+	  <para id="paraex1a">
+	    How would we implement this efficiently if we wanted to
+	    decimate the individual channels 
+	    <m:math>
+	      <m:apply>
+		<m:ci type="fn"><m:msub>
+		    <m:mi>y</m:mi>
+		    <m:mi>k</m:mi>
+		  </m:msub></m:ci>
+		<m:mi>n</m:mi>
+	      </m:apply>
+	    </m:math> by a factor of <m:math><m:ci>N</m:ci></m:math>,
+	    to their approximate Nyquist bandwidth?
+	  </para>
+	</problem>
+	<solution id="id1171785769655">
+	  <para id="ex1sol">
+	    Simply step by <m:math><m:ci>N</m:ci></m:math> time
+	    samples between FFTs.
+	  </para>
+	</solution>
+      </exercise>
+
+      <exercise id="ex2">
+	<problem id="id1171774645321">
+	  <para id="ex2prob">
+	    Do you expect significant aliasing?  If so, how do you
+	    propose to combat it?  Efficiently?
+	  </para>
+	</problem>
+	<solution id="id1171785642118">
+	  <para id="ex2sol">
+	    Aliasing should be expected.  There are two ways to reduce
+	    it: 
+	    <list id="ex2list" list-type="enumerated">
+	      <item>
+		Decimate by less ("oversample" the individual
+		channels) such as decimating by a factor of 
+		<m:math>
+		  <m:apply>
+		    <m:divide/>
+		    <m:ci>N</m:ci>
+		    <m:cn>2</m:cn>
+		  </m:apply>
+		</m:math>.  This is efficiently done by time-stepping
+		by the appropriate factor.
+	      </item>
+	      <item>
+		Design better (and thus longer) filters, say of length 
+		<m:math>
+		  <m:apply>
+		    <m:times/>
+		    <m:ci>L</m:ci>
+		    <m:ci>N</m:ci>
+		  </m:apply>
+		</m:math>.  These can be efficiently computed by
+		producing only <m:math><m:ci>N</m:ci></m:math> (every
+		<m:math><m:ci>L</m:ci></m:math>th) FFT outputs using
+		simplified FFTs.
+	      </item>
+	    </list>
+	  </para>
+	</solution>
+      </exercise>
+
+      <exercise id="ex3">
+	<problem id="id1171784677059">
+	  <para id="ex3prob">
+	    How might one convert from <m:math><m:ci>N</m:ci></m:math>
+	    input channels into an FDM signal efficiently?  (<link target-id="fig2"/>)
+
+	    <figure id="fig2">
+	      <media id="id3382828" alt="">
+                <image src="../../media/imag002-78eb.png" mime-type="image/png"/>
+                <image for="pdf" src="../../media/imag002-fda1.eps" mime-type="application/postscript"/>
+              </media>
+	    </figure>
+
+	    <note id="id1171781214070" type="note">
+	      Such systems are used throughout the telephone system,
+	      satellite communication links,
+	      <foreign>etc.</foreign></note>
+	  </para>
+	</problem>
+	<solution id="id6819863">
+	  <para id="ex3sol">
+	    Use an FFT and an inverse FFT for the modulation (TDM to
+	    FDM) and demodulation (FDM to TDM), respectively.
+	  </para>
+	</solution>
+      </exercise>
+
+    </section>
+  </content>
+  
+</document>

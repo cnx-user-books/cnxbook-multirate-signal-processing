@@ -1,0 +1,566 @@
+<document xmlns="http://cnx.rice.edu/cnxml" xmlns:m="http://www.w3.org/1998/Math/MathML" xmlns:md="http://cnx.rice.edu/mdml">
+  <title>Efficient Multirate Filter Structures</title>
+  <metadata>
+  <md:content-id>m12800</md:content-id><md:title>Efficient Multirate Filter Structures</md:title>
+  <md:abstract/>
+  <md:uuid>7778ee57-bdc5-48b0-b8b5-d851e37598dc</md:uuid>
+</metadata>
+<featured-links>
+  <!-- WARNING! The 'featured-links' section is read only. Do not edit below.
+       Changes to the links section in the source will not be saved. -->
+    <link-group type="supplemental">
+      <link url="http://cnx.rice.edu/content/m12773/latest/" strength="3">Filter Design for Mulitrate Systems</link>
+      <link url="http://cnx.rice.edu/content/m12801/latest/" strength="3">Interpolation, Decimation, and Rate Changing by Integer Fractions</link>
+      <link url="http://cnx.rice.edu/content/m10433/latest/" strength="2">Polyphase Decimation Filter</link>
+      <link url="http://cnx.rice.edu/content/m10431/latest/" strength="2">Polyphase Interpolation</link>
+      <link url="http://cnx.rice.edu/content/m11008/latest/" strength="2">Computational Savings of Polyphase Interpolation/Decimation</link>
+      <link url="http://cnx.rice.edu/content/col10144/latest/" strength="2">Digital Signal Processing (Ohio State EE700)</link>
+      <link url="http://cnx.rice.edu/content/col10280/latest/" strength="2">Adaptive Filters</link>
+      <link url="http://cnx.rice.edu/content/col10259/latest/" strength="2">Digital Filter Structures and Quantization Error Analysis</link>
+      <link url="http://cnx.rice.edu/content/col10285/latest/" strength="2">Digital Filter Design</link>
+      <link url="http://cnx.rice.edu/content/col10281/latest/" strength="1">The DFT, FFT, and Practical Spectral Analysis</link>
+    </link-group>
+  <!-- WARNING! The 'featured-links' section is read only. Do not edit above.
+       Changes to the links section in the source will not be saved. -->
+</featured-links>
+<content>
+    <para id="para1">
+      Rate-changing appears expensive computationally, since for both
+      decimation and interpolation the lowpass filter is implemented
+      at the higher rate.  However, this is not necessary.
+    </para>
+
+    <section id="sec1">
+      <title>Interpolation</title>
+      <para id="para2">
+	For the interpolator, most of the samples in the upsampled
+	signal are zero, and thus require no computation. (<link target-id="fig1"/>)
+
+	<figure id="fig1">
+	  <media id="id1170256200562" alt="">
+            <image src="../../media/imag001-1a05.png" mime-type="image/png"/>
+            <image for="pdf" src="../../media/imag001-c4c3.eps" mime-type="application/postscript"/>
+          </media>
+	</figure>
+
+	For 
+	<m:math>
+	  <m:apply>
+	    <m:eq/>
+	    <m:ci>m</m:ci>
+	    <m:apply>
+	      <m:plus/>
+	      <m:apply>
+		<m:times/>
+		<m:ci>L</m:ci>
+		<m:apply>
+		  <m:floor/>
+		  <m:apply>
+		    <m:divide/>
+		    <m:ci>m</m:ci>
+		    <m:ci>L</m:ci>
+		  </m:apply>
+		</m:apply>
+	      </m:apply>
+              <m:apply>
+                <m:rem/>
+                <m:ci>m</m:ci>
+                <m:ci>L</m:ci>
+              </m:apply>
+	    </m:apply>
+	  </m:apply>
+	</m:math> and 
+	<m:math>
+	  <m:apply>
+	    <m:eq/>
+	    <m:ci>p</m:ci>
+            <m:apply>
+              <m:rem/>
+              <m:ci>m</m:ci>
+              <m:ci>L</m:ci>
+            </m:apply> 
+	  </m:apply>
+	</m:math>, 
+
+	<equation id="eqn1">
+	  <m:math>
+	    <m:apply>
+	      <m:eq/>
+	      <m:apply>
+		<m:ci type="fn"><m:msub>
+		    <m:mi>x</m:mi>
+		    <m:mn>1</m:mn>
+		  </m:msub></m:ci>
+		<m:ci>m</m:ci>
+	      </m:apply>
+	      <m:apply>
+		<m:sum/>
+		<m:bvar><m:ci>m</m:ci></m:bvar>
+		<m:lowlimit>
+		  <m:ci><m:msub>
+		      <m:mi>N</m:mi>
+		      <m:mn>1</m:mn>
+		    </m:msub></m:ci>
+		</m:lowlimit>
+		<m:uplimit>
+		  <m:ci><m:msub>
+		      <m:mi>N</m:mi>
+		      <m:mn>2</m:mn>
+		    </m:msub></m:ci>
+		</m:uplimit>
+		<m:apply>
+		  <m:times/>
+		  <m:apply>
+		    <m:ci type="fn"><m:msub>
+			<m:mi>h</m:mi>
+			<m:mrow>
+			  <m:mi>L</m:mi>
+			  <m:mi>p</m:mi>
+			</m:mrow>
+		      </m:msub></m:ci>
+		    <m:mi>m</m:mi>
+		  </m:apply>
+		  <m:apply>
+		    <m:ci type="fn">y</m:ci>
+		    <m:ci>m</m:ci>
+		  </m:apply>
+		</m:apply>
+	      </m:apply>
+
+	      <m:apply>
+		<m:sum/>
+		<m:bvar><m:ci>k</m:ci></m:bvar>
+		<m:lowlimit>
+		  <m:apply>
+		    <m:divide/>
+		    <m:ci><m:msub>
+			<m:mi>N</m:mi>
+			<m:mn>1</m:mn>
+		      </m:msub></m:ci>
+		    <m:ci>L</m:ci>
+		  </m:apply>
+		</m:lowlimit>
+		<m:uplimit>
+		  <m:apply>
+		    <m:divide/>
+		    <m:ci><m:msub>
+			<m:mi>N</m:mi>
+			<m:mn>2</m:mn>
+		      </m:msub></m:ci>
+		    <m:ci>L</m:ci>
+		  </m:apply>
+		</m:uplimit>
+		<m:apply>
+		  <m:times/>
+		  <m:apply>
+		    <m:ci type="fn"><m:msub>
+			<m:mi>g</m:mi>
+			<m:mi>p</m:mi>
+		      </m:msub></m:ci>
+		    <m:mi>k</m:mi>
+		  </m:apply>
+		  <m:apply>
+		    <m:ci type="fn"><m:msub>
+			<m:mi>x</m:mi>
+			<m:mn>0</m:mn>
+		      </m:msub></m:ci>
+		    <m:apply>
+		      <m:minus/>
+		      <m:apply>
+			<m:floor/>
+			<m:apply>
+			  <m:divide/>
+			  <m:ci>m</m:ci>
+			  <m:ci>L</m:ci>
+			</m:apply>
+		      </m:apply>
+		      <m:ci>k</m:ci>
+		    </m:apply>
+		  </m:apply>
+		</m:apply>
+	      </m:apply>
+	    </m:apply>
+	  </m:math>
+	</equation>
+
+	<m:math display="block">
+	  <m:apply>
+	    <m:eq/>
+	    <m:apply>
+	      <m:ci type="fn"><m:msub>
+		  <m:mi>g</m:mi>
+		  <m:mi>p</m:mi>
+		</m:msub></m:ci>
+	      <m:mi>n</m:mi>
+	    </m:apply>
+	    <m:apply>
+	      <m:ci type="fn">h</m:ci>
+	      <m:apply>
+		<m:plus/>
+		<m:apply>
+		  <m:times/>
+		  <m:ci>L</m:ci>
+		  <m:ci>n</m:ci>
+		</m:apply>
+		<m:ci>p</m:ci>
+	      </m:apply>
+	    </m:apply>
+	  </m:apply>
+	</m:math>
+	Pictorially, this can be represented as in <link target-id="fig2"/>.
+
+	<figure id="fig2">
+	  <media id="id1170259415084" alt="">
+            <image src="../../media/imag002-4518.png" mime-type="image/png"/>
+            <image for="pdf" src="../../media/imag002-2f0c.eps" mime-type="application/postscript"/>
+          </media>
+	</figure>
+	
+	These are called <term>polyphase structures</term>, and the 
+	<m:math>
+	  <m:apply>
+	    <m:ci type="fn"><m:msub>
+		<m:mi>g</m:mi>
+		<m:mi>p</m:mi>
+	      </m:msub></m:ci>
+	    <m:mi>n</m:mi>
+	  </m:apply>
+	</m:math>
+
+	are called <term>polyphase filters</term>.
+      </para>
+
+      <para id="para3"><title>Computational cost</title>
+	
+	If 
+	<m:math>
+	  <m:apply>
+	    <m:ci type="fn">h</m:ci>
+	    <m:ci>m</m:ci>
+	  </m:apply>
+	</m:math> is a length-<m:math><m:ci>N</m:ci></m:math> filter:
+	<list id="list1">
+	  <item>
+	    No simplification: 
+	    <m:math>
+	      <m:apply>
+		<m:eq/>
+		<m:apply>
+		  <m:divide/>
+		  <m:ci>N</m:ci>
+		  <m:ci><m:msub>
+		      <m:mi>T</m:mi>
+		      <m:mn>1</m:mn>
+		    </m:msub></m:ci>
+		</m:apply>
+		  <m:apply>
+		  <m:times/>
+		  <m:apply>
+		    <m:divide/>
+		    <m:apply>
+		      <m:times/>
+		      <m:ci>L</m:ci>
+		      <m:ci>N</m:ci>
+		    </m:apply>
+		    <m:ci><m:msub>
+			<m:mi>T</m:mi>
+			<m:mn>0</m:mn>
+		      </m:msub></m:ci>
+		  </m:apply>
+		  <m:apply>
+		    <m:divide/>
+		    <m:ci>computations</m:ci>
+		    <m:ci>sec</m:ci>
+		  </m:apply>
+		</m:apply>
+	      </m:apply>
+	    </m:math>
+	  </item>
+
+	  <item>
+	    Polyphase structure:
+	    <m:math>
+	      <m:apply>
+		<m:eq/>
+		<m:apply>
+		  <m:times/>
+		  <m:apply>
+		    <m:times/>
+		    <m:ci>L</m:ci>
+		    <m:apply>
+		      <m:divide/>
+		      <m:ci>L</m:ci>
+		      <m:ci>N</m:ci>
+		    </m:apply>
+		    <m:apply>
+		      <m:divide/>
+		      <m:cn>1</m:cn>
+		      <m:ci><m:msubsup>
+			  <m:mi>T</m:mi>
+			  <m:mn>0</m:mn>
+                          <m:mi>o</m:mi>
+			</m:msubsup></m:ci>
+		    </m:apply>
+		  </m:apply>
+		  <m:apply>
+		    <m:divide/>
+		    <m:ci>computations</m:ci>
+		    <m:ci>sec</m:ci>
+		  </m:apply>
+		</m:apply>
+		<m:apply>
+		  <m:divide/>
+		  <m:ci>N</m:ci>
+		  <m:ci><m:msub>
+		      <m:mi>T</m:mi>
+		      <m:mn>0</m:mn>
+		    </m:msub></m:ci>
+		</m:apply>
+	      </m:apply>
+	    </m:math>
+	    where <m:math><m:ci>L</m:ci></m:math> is the number of filters, 
+	    <m:math>
+	      <m:apply>
+		<m:divide/>
+		<m:ci>N</m:ci>
+		<m:ci>L</m:ci>
+	      </m:apply>
+	    </m:math> is the taps/filter, and 
+	    <m:math>
+	      <m:apply>
+		<m:divide/>
+		<m:cn>1</m:cn>
+		<m:ci><m:msub>
+		    <m:mi>T</m:mi>
+		    <m:mn>0</m:mn>
+		  </m:msub></m:ci>
+	      </m:apply>
+	    </m:math> is the rate.
+	  </item>
+	</list>
+	Thus we save a factor of <m:math><m:ci>L</m:ci></m:math> by
+	not being dumb.
+	<note id="id1170265916181" type="note">
+	  For a given precision, <m:math><m:ci>N</m:ci></m:math> is
+	  proportional to <m:math><m:ci>L</m:ci></m:math>, (why?), so
+	  the computational cost does increase with the interpolation
+	  rate.
+	</note>
+	<note id="id1170259247367" type="question"><label>Question</label>
+	  Can similar computational savings be obtained with IIR
+	  structures?
+	</note>
+      </para>
+    </section>
+
+    <section id="sec2">
+      <title>Efficient Decimation Structures</title>
+      <para id="para4">
+	We only want every <m:math><m:ci>M</m:ci></m:math>th output,
+	so we compute only the outputs of interest. (<link target-id="fig3"/>)
+
+	<m:math display="block">
+	  <m:apply>
+	    <m:eq/>
+	    <m:apply>
+	      <m:ci type="fn"><m:msub>
+		  <m:mi>x</m:mi>
+		  <m:mn>1</m:mn>
+		</m:msub></m:ci>
+	      <m:ci>m</m:ci>
+	    </m:apply>
+	    <m:apply>
+	      <m:sum/>
+	      <m:bvar><m:ci>k</m:ci></m:bvar>
+	      <m:lowlimit>
+		<m:ci><m:msub>
+		    <m:mi>N</m:mi>
+		    <m:mn>1</m:mn>
+		  </m:msub></m:ci>
+	      </m:lowlimit>
+	      <m:uplimit>
+		<m:ci><m:msub>
+		    <m:mi>N</m:mi>
+		    <m:mn>2</m:mn>
+		  </m:msub></m:ci>
+	      </m:uplimit>
+	      <m:apply>
+		<m:times/>
+		<m:apply>
+		  <m:ci type="fn"><m:msub>
+		      <m:mi>x</m:mi>
+		      <m:mn>0</m:mn>
+		    </m:msub></m:ci>
+		  <m:apply>
+		    <m:minus/>
+		    <m:apply>
+		      <m:times/>
+		      <m:ci>L</m:ci>
+		      <m:mi>m</m:mi>
+		    </m:apply>
+		    <m:ci>k</m:ci>
+		  </m:apply>
+		</m:apply>
+		<m:apply>
+		  <m:ci type="fn">h</m:ci>
+		  <m:ci>k</m:ci>
+		</m:apply>
+	      </m:apply>
+	    </m:apply>
+	  </m:apply>
+	</m:math>
+
+	<figure id="fig3">
+	  <title>Polyphase Decimation Structure</title>
+	  <media id="id1170265788675" alt="">
+            <image src="../../media/imag003-7efa.png" mime-type="image/png"/>
+            <image for="pdf" src="../../media/imag003-86c3.eps" mime-type="application/postscript"/>
+          </media>
+	</figure>
+	The decimation structures are flow-graph reversals of the
+	interpolation structure.  Although direct implementation of
+	the full filter for every <m:math><m:ci>M</m:ci></m:math>th
+	sample is obvious and straightforward, these polyphase
+	structures give some idea as to how one might evenly partition
+	the computation over <m:math><m:ci>M</m:ci></m:math> cycles.
+      </para>
+    </section>
+
+    <section id="sec3">
+      <title>Efficient L/M rate changers</title>
+      <para id="para5">
+	Interpolate by <m:math><m:ci>L</m:ci></m:math> and decimate by
+	<m:math><m:ci>M</m:ci></m:math> (<link target-id="fig4"/>).
+
+	<figure id="fig4">
+	  <media id="id7852146" alt="">
+            <image src="../../media/imag004-6a09.png" mime-type="image/png"/>
+            <image for="pdf" src="../../media/imag004-2af9.eps" mime-type="application/postscript"/>
+          </media>
+	</figure>
+
+	Combine the lowpass filters (<link target-id="fig5"/>).
+
+	<figure id="fig5">
+	  <media id="id1003757" alt="">
+            <image src="../../media/imag005-2ade.png" mime-type="image/png"/>
+            <image for="pdf" src="../../media/imag005-fcc6.eps" mime-type="application/postscript"/>
+          </media>
+	</figure>
+
+	We can couple the lowpass filter either to the interpolator or
+	the decimator to implement it efficiently (<link target-id="fig6"/>).
+
+	<figure id="fig6">
+	  <media id="id1170259390583" alt="">
+            <image src="../../media/imag006-46b2.png" mime-type="image/png"/>
+            <image for="pdf" src="../../media/imag006-b208.eps" mime-type="application/postscript"/>
+          </media>
+	</figure>
+
+	Of course we only compute the polyphase filter output selected
+	by the decimator.
+      </para>
+      <para id="para6"><title>Computational Cost</title>
+	
+	Every 
+	<m:math>
+	  <m:apply>
+	    <m:eq/>
+	    <m:ci><m:msub>
+		<m:mi>T</m:mi>
+		<m:mn>1</m:mn>
+	      </m:msub></m:ci>
+	    <m:apply>
+	      <m:times/>
+	      <m:apply>
+		<m:divide/>
+		<m:ci>M</m:ci>
+		<m:ci>L</m:ci>
+	      </m:apply>
+	      <m:ci><m:msub>
+		  <m:mi>T</m:mi>
+		  <m:mn>0</m:mn>
+		</m:msub></m:ci>
+	      <m:ci>seconds</m:ci>
+	    </m:apply>
+	  </m:apply>
+	</m:math>, compute one polyphase filter of length
+	<m:math>
+	  <m:apply>
+	    <m:divide/>
+	    <m:ci>N</m:ci>
+	    <m:ci>L</m:ci>
+	  </m:apply>
+	</m:math>, or 
+	<m:math display="block">
+	  <m:apply>
+	    <m:eq/>
+	    <m:apply>
+	      <m:divide/>
+	      <m:apply>
+		<m:divide/>
+		<m:ci>N</m:ci>
+		<m:ci>L</m:ci>
+	      </m:apply>
+	      <m:ci><m:msub>
+		  <m:mi>T</m:mi>
+		  <m:mn>1</m:mn>
+		</m:msub></m:ci>
+	    </m:apply>
+	    <m:apply>
+	      <m:divide/>
+	      <m:apply>
+		<m:divide/>
+		<m:ci>N</m:ci>
+		<m:ci>L</m:ci>
+	      </m:apply>
+	      <m:apply>
+		<m:times/>
+		<m:apply>
+		  <m:divide/>
+		  <m:ci>M</m:ci>
+		  <m:ci>L</m:ci>
+		</m:apply>
+		<m:ci><m:msub>
+		    <m:mi>T</m:mi>
+		    <m:mn>0</m:mn>
+		  </m:msub></m:ci>
+	      </m:apply>
+	    </m:apply>
+	    <m:apply>
+	      <m:times/>
+	      <m:apply>
+		<m:divide/>
+		<m:ci>N</m:ci>
+		<m:apply>
+		  <m:times/>
+		  <m:ci>M</m:ci>
+		  <m:ci><m:msub>
+		      <m:mi>T</m:mi>
+		      <m:mn>0</m:mn>
+		    </m:msub></m:ci>
+		</m:apply>
+	      </m:apply>
+	      <m:apply>
+		<m:divide/>
+		<m:ci>multiplies</m:ci>
+		<m:ci>second</m:ci>
+	      </m:apply>
+	    </m:apply>
+	  </m:apply>
+	</m:math>
+	However, note that <m:math><m:ci>N</m:ci></m:math> is
+	proportional to
+	<m:math>
+	  <m:apply>
+	    <m:max/>
+	    <m:ci>L</m:ci>
+	    <m:ci>M</m:ci>
+	  </m:apply>
+	</m:math>.
+      </para>
+    </section>
+  </content>
+  
+</document>

@@ -1,0 +1,829 @@
+<document xmlns="http://cnx.rice.edu/cnxml" xmlns:m="http://www.w3.org/1998/Math/MathML" xmlns:md="http://cnx.rice.edu/mdml">
+  <title>Filter Design for Multirate Systems</title>
+  <metadata>
+  <md:content-id>m12773</md:content-id><md:title>Filter Design for Multirate Systems</md:title>
+  <md:abstract/>
+  <md:uuid>d4c6727c-d2d9-4f19-b81f-53a17f3694fa</md:uuid>
+</metadata>
+<featured-links>
+  <!-- WARNING! The 'featured-links' section is read only. Do not edit below.
+       Changes to the links section in the source will not be saved. -->
+    <link-group type="supplemental">
+      <link url="http://cnx.rice.edu/content/m12800/latest/" strength="3">Efficient Multirate Filter Structures</link>
+      <link url="http://cnx.rice.edu/content/m12803/latest/" strength="3">Multistage Multirate Systems</link>
+      <link url="http://cnx.rice.edu/content/col10285/latest/" strength="3">Digital Filter Design</link>
+      <link url="http://cnx.rice.edu/content/col10280/latest/" strength="2">Adaptive Filters</link>
+      <link url="http://cnx.rice.edu/content/col10259/latest/" strength="2">Digital Filter Structures and Quantization Error Analysis</link>
+      <link url="http://cnx.rice.edu/content/col10281/latest/" strength="1">The DFT, FFT, and Practical Spectral Analysis</link>
+    </link-group>
+  <!-- WARNING! The 'featured-links' section is read only. Do not edit above.
+       Changes to the links section in the source will not be saved. -->
+</featured-links>
+<content>
+    <para id="para1">
+      The <link document="col10285">filter design techniques</link> learned earlier can be applied to
+      the design of filters in multirate systems, with a few twists.
+    </para>
+    <example id="example1">
+      <para id="para2">
+	Design a factor-of-<m:math><m:ci>L</m:ci></m:math>
+	interpolator for use in a CD player, we might wish that the
+	out-of-band error be below the least significant bit, or 96dB
+	down, and
+	<m:math>
+	  <m:mrow>
+	    <m:mo>&lt;</m:mo>
+	    <m:mn>0.05</m:mn>
+	    <m:mi>%</m:mi>
+	  </m:mrow>
+	</m:math> error in the passband, so these specifications could
+	be used for optimal
+	<m:math>
+	  <m:ci><m:msub>
+	      <m:mi>L</m:mi>
+	      <m:mi>∞</m:mi>
+	    </m:msub></m:ci>
+	</m:math> filter design.
+      </para>
+    </example>
+
+    <para id="para3">
+      In a CD player, the sampling rate is 44.1kHz, corresponding to a
+      Nyquist frequency of 22.05kHz, but the sampled signal is
+      bandlimited to 20kHz.  This leaves a small transition band, from
+      20kHz to 24.1kHz.  However, note that in any case where the
+      signal spectrum is zero over some band, this introduces
+      <emphasis>other</emphasis> zero bands in the scaled, replicated
+      spectrum (<link target-id="fig1"/>).
+
+      <figure id="fig1">
+	<media id="id1170267460198" alt="">
+          <image src="../../media/imag001-1532.png" mime-type="image/png"/>
+          <image for="pdf" src="../../media/imag001-6d01.eps" mime-type="application/postscript"/>
+        </media>
+      </figure>
+      
+      So we need only control the filter response in the stopbands
+      over the frequency regions with nonzero energy. (<link target-id="fig2"/>)
+      
+      <figure id="fig2">
+	<media id="id2286399" alt="">
+          <image src="../../media/imag002-0078.png" mime-type="image/png"/>
+          <image for="pdf" src="../../media/imag002-47b2.eps" mime-type="application/postscript"/>
+        </media>
+      </figure>
+      
+      The extra "don't care" bands allow a given set of specifications
+      to be satisfied with a shorter-length filter.
+    </para>
+ 
+    <section id="section1">
+      <title>Direct polyphase filter design</title>
+      <para id="para4">
+	Note that in an integer-factor interpolator, each set of
+	output samples
+	<m:math>
+	  <m:apply>
+	    <m:ci type="fn"><m:msub>
+		<m:mi>x</m:mi>
+		<m:mn>1</m:mn>
+	      </m:msub></m:ci>
+	    <m:apply>
+	      <m:plus/>
+	      <m:apply>
+		<m:times/>
+		<m:ci>L</m:ci>
+		<m:ci>n</m:ci>
+	      </m:apply>
+	      <m:ci>p</m:ci>
+	    </m:apply>
+	  </m:apply>
+	</m:math>,
+	<m:math>
+	  <m:apply>
+	    <m:eq/>
+	    <m:ci>p</m:ci>
+	    <m:set>
+	      <m:cn>0</m:cn>
+	      <m:cn>1</m:cn>
+	      <m:ci>…</m:ci>
+	      <m:apply>
+		<m:minus/>
+		<m:ci>L</m:ci>
+		<m:cn>1</m:cn>
+	      </m:apply>
+	    </m:set>
+	  </m:apply>
+	</m:math>, is created by a different polyphase filter
+	<m:math>
+	  <m:apply>
+	    <m:ci type="fn"><m:msub>
+		<m:mi>g</m:mi>
+		<m:mi>p</m:mi>
+	      </m:msub></m:ci>
+	    <m:ci>n</m:ci>
+	  </m:apply>
+	</m:math>, which has no interaction with the other polyphase
+	filters except in that they each interpolate the same signal.
+	We can thus treat the design of each polyphase filter
+	<emphasis>independently</emphasis>, as an 
+	<m:math>
+	  <m:apply>
+	    <m:divide/>
+	    <m:ci>N</m:ci>
+	    <m:ci>L</m:ci>
+	  </m:apply>
+	</m:math>-length filter design problem. (<link target-id="fig3"/>)
+    
+      <figure id="fig3">
+	<media id="id1170263777048" alt=""><image src="../../media/iamg003.png" mime-type="image/png"/></media>
+      </figure>
+
+	Each 
+	<m:math>
+	  <m:apply>
+	    <m:ci type="fn"><m:msub>
+		<m:mi>g</m:mi>
+		<m:mi>p</m:mi>
+	      </m:msub></m:ci>
+	    <m:ci>n</m:ci>
+	  </m:apply>
+	</m:math> produces samples 
+	<m:math>
+	  <m:apply>
+	    <m:eq/>
+	    <m:apply>
+	      <m:ci type="fn"><m:msub>
+		  <m:mi>x</m:mi>
+		  <m:mn>1</m:mn>
+		</m:msub></m:ci>
+	      <m:apply>
+		<m:plus/>
+		<m:apply>
+		  <m:times/>
+		  <m:ci>L</m:ci>
+		  <m:ci>n</m:ci>
+		</m:apply>
+		<m:ci>p</m:ci>
+	      </m:apply>
+	    </m:apply>
+	    <m:apply>
+	      <m:ci type="fn"><m:msub>
+		  <m:mi>x</m:mi>
+		  <m:mn>0</m:mn>
+		</m:msub></m:ci>
+	      <m:apply>
+		<m:plus/>
+		<m:ci>n</m:ci>
+		<m:apply>
+		  <m:divide/>
+		  <m:ci>p</m:ci>
+		  <m:ci>L</m:ci>
+		</m:apply>
+	      </m:apply>
+	    </m:apply>
+	  </m:apply>
+	</m:math>, where 
+	<m:math>
+	  <m:apply>
+	    <m:plus/>
+	    <m:ci>n</m:ci>
+	    <m:apply>
+	      <m:divide/>
+	      <m:ci>p</m:ci>
+	      <m:ci>L</m:ci>
+	    </m:apply>
+	  </m:apply>
+	</m:math> is not an integer.  That is, 
+	<m:math>
+	  <m:apply>
+	    <m:ci type="fn"><m:msub>
+		<m:mi>g</m:mi>
+		<m:mi>p</m:mi>
+	      </m:msub></m:ci>
+	    <m:ci>n</m:ci>
+	  </m:apply>
+	</m:math> is to produce an output signal (at a 
+	<m:math>
+	  <m:ci><m:msub>
+	      <m:mi>T</m:mi>
+	      <m:mn>0</m:mn>
+	    </m:msub></m:ci>
+	</m:math>
+	rate) that is 
+	<m:math>
+	  <m:apply>
+	    <m:ci type="fn"><m:msub>
+		<m:mi>x</m:mi>
+		<m:mn>0</m:mn>
+	      </m:msub></m:ci>
+	    <m:ci>n</m:ci>
+	  </m:apply>
+	</m:math> time-advanced by a non-integer advance 
+	<m:math>
+	  <m:apply>
+	    <m:divide/>
+	    <m:ci>p</m:ci>
+	    <m:ci>L</m:ci>
+	  </m:apply>
+	</m:math>.
+      </para>
+
+      <para id="para5">
+	The desired response of this polyphase filter is thus 
+
+	<m:math display="block">
+	  <m:apply>
+	    <m:eq/>
+	    <m:apply>
+	      <m:ci type="fn"><m:msub>
+		  <m:mi>H</m:mi>
+		  <m:mrow>
+		    <m:mi>D</m:mi>
+		    <m:mi>p</m:mi>
+		  </m:mrow>
+		</m:msub></m:ci>
+	      <m:mi>ω</m:mi>
+	    </m:apply>
+	    <m:apply>
+	      <m:exp/>
+	      <m:apply>
+		<m:divide/>
+		<m:apply>
+		  <m:times/>
+		  <m:imaginaryi/>
+		  <m:ci>ω</m:ci>
+		  <m:ci>p</m:ci>
+		</m:apply>
+		<m:ci>L</m:ci>
+	      </m:apply>
+	    </m:apply>
+	  </m:apply>
+	</m:math>
+	for 
+	<m:math>
+	  <m:apply>
+	    <m:leq/>
+	    <m:apply>
+	      <m:abs/>
+	      <m:ci>ω</m:ci>
+	    </m:apply>
+	    <m:pi/>
+	  </m:apply>
+	</m:math>, an all-pass filter with a linear, non-integer,
+	phase.  Each polyphase filter can be designed independently to
+	approximate this response according to any of the design
+	criteria developed so far.
+      </para>
+      <exercise id="exer1">
+	<problem id="id1170265710732">
+	  <para id="prob_1">
+	    What should the polyphase filter for 
+	    <m:math>
+	      <m:apply>
+		<m:eq/>
+		<m:ci>p</m:ci>
+		<m:cn>0</m:cn>
+	      </m:apply>
+	    </m:math> be?
+	  </para>
+	</problem>	  
+	<solution id="id1170263053329">
+	  <para id="sol_1">
+	    A delta function: 
+	    <m:math>
+	      <m:apply>
+		<m:eq/>
+		<m:apply>
+		  <m:ci type="fn"><m:msub>
+		      <m:mi>h</m:mi>
+		      <m:mn>0</m:mn>
+		    </m:msub></m:ci>
+		  <m:ci>n</m:ci>
+		</m:apply>
+		<m:apply>
+		  <m:ci type="fn">δ</m:ci>
+		  <m:ci><m:msup>
+		      <m:mi>n</m:mi>
+		      <m:mo>′</m:mo>
+		    </m:msup></m:ci>
+		</m:apply>
+	      </m:apply>
+	    </m:math>
+	  </para>
+	</solution>
+      </exercise>
+
+      <example id="ex2">
+	<title>Least-squares Polyphase Filter Design</title>
+	<para id="para6">
+	  <list id="list1" list-type="labeled-item">
+	    <item><label>Deterministic x(n)</label>
+	      Minimize 
+	      <m:math display="block">
+		<m:apply>
+		  <m:sum/>
+		  <m:bvar><m:ci>n</m:ci></m:bvar>
+		  <m:lowlimit>
+		    <m:apply>
+		      <m:minus/>
+		      <m:infinity/>
+		    </m:apply>
+		  </m:lowlimit>
+		  <m:uplimit>
+		    <m:infinity/>
+		  </m:uplimit>
+		  <m:apply>
+		    <m:power/>
+		    <m:apply>
+		      <m:abs/>
+		      <m:apply>
+			<m:minus/>
+			<m:apply>
+			  <m:ci type="fn">x</m:ci>
+			  <m:ci>n</m:ci>
+			</m:apply>
+			<m:apply>
+			  <m:ci type="fn"><m:msub>
+			      <m:mi>x</m:mi>
+			      <m:mi>d</m:mi>
+			    </m:msub></m:ci>
+			  <m:ci>n</m:ci>
+			</m:apply>
+		      </m:apply>
+		    </m:apply>
+		    <m:cn>2</m:cn>
+		  </m:apply>
+		</m:apply>
+	      </m:math>
+	      Given 
+	      
+	      <m:math>
+		<m:apply>
+		  <m:eq/>
+		  <m:apply>
+		    <m:ci type="fn">x</m:ci>
+		    <m:ci>n</m:ci>
+		  </m:apply>       
+		  <m:apply>
+		    <m:csymbol definitionURL="http://cnx.rice.edu/cd/cnxmath.ocd#convolve"/>
+		    <m:apply>
+		      <m:ci type="fn">x</m:ci>
+		      <m:ci>n</m:ci>
+		    </m:apply>  
+		    <m:apply>
+		      <m:ci type="fn">h</m:ci>
+		      <m:ci>n</m:ci>
+		    </m:apply>
+		  </m:apply>
+		</m:apply>
+	      </m:math>
+	      and 
+	      <m:math>
+		<m:apply>
+		  <m:eq/>
+		  <m:apply>
+		    <m:ci type="fn"><m:msub>
+			<m:mi>x</m:mi>
+			<m:mi>d</m:mi>
+		      </m:msub></m:ci>
+		    <m:ci>n</m:ci>
+		  </m:apply>       
+		  <m:apply>
+		    <m:csymbol definitionURL="http://cnx.rice.edu/cd/cnxmath.ocd#convolve"/>
+		    <m:apply>
+		      <m:ci type="fn">x</m:ci>
+		      <m:ci>n</m:ci>
+		    </m:apply>  
+		    <m:apply>
+		      <m:ci type="fn"><m:msub>
+			  <m:mi>h</m:mi>
+			  <m:mi>d</m:mi>
+			</m:msub></m:ci>
+		      <m:ci>n</m:ci>
+		    </m:apply>
+		  </m:apply>
+		</m:apply>
+	      </m:math>.  
+	      Using Parseval's theorem, this becomes 
+	      <equation id="eqn2">
+		<m:math>
+		  <m:apply>
+		    <m:eq/>
+		    <m:apply>
+		      <m:min/>
+		      <m:apply>
+			<m:sum/>
+			<m:bvar><m:ci>n</m:ci></m:bvar>
+			<m:lowlimit>
+			  <m:apply>
+			    <m:minus/>
+			    <m:infinity/>
+			  </m:apply>
+			</m:lowlimit>
+			<m:uplimit>
+			  <m:infinity/>
+			</m:uplimit>
+			<m:apply>
+			  <m:power/>
+			  <m:apply>
+			    <m:abs/>
+			    <m:apply>
+			      <m:minus/>
+			      <m:apply>
+				<m:ci type="fn">x</m:ci>
+				<m:ci>n</m:ci>
+			      </m:apply>
+			      <m:apply>
+				<m:ci type="fn"><m:msub>
+				    <m:mi>x</m:mi>
+				    <m:mi>d</m:mi>
+				  </m:msub></m:ci>
+				<m:ci>n</m:ci>
+			      </m:apply>
+			    </m:apply>
+			  </m:apply>
+			  <m:cn>2</m:cn>
+			</m:apply>
+		      </m:apply>
+		    </m:apply>
+
+		    <m:apply>
+		      <m:min/>
+		      <m:apply>
+			<m:times/>
+			<m:apply>
+			  <m:divide/>
+			  <m:cn>1</m:cn>
+			  <m:apply>
+			    <m:times/>
+			    <m:cn>2</m:cn>
+			    <m:pi/>
+			  </m:apply>
+			</m:apply>
+			<m:apply>
+			  <m:int/>
+			  <m:bvar><m:ci>ω</m:ci></m:bvar>
+			  <m:lowlimit>
+			    <m:apply>
+			      <m:minus/>
+			      <m:pi/>
+			    </m:apply>
+			  </m:lowlimit>
+			  <m:uplimit>
+			    <m:pi/>
+			  </m:uplimit>
+			  <m:apply>
+			    <m:power/>
+			    <m:apply>
+			      <m:abs/>
+			      <m:apply>
+				<m:minus/>
+				<m:apply>
+				  <m:times/>
+				  <m:apply>
+				    <m:ci type="fn">X</m:ci>
+				    <m:ci>ω</m:ci>
+				  </m:apply>
+				  <m:apply>
+				    <m:ci type="fn">H</m:ci>
+				    <m:ci>ω</m:ci>
+				  </m:apply>
+				</m:apply>
+				<m:apply>
+				  <m:times/>
+				  <m:apply>
+				    <m:ci type="fn">X</m:ci>
+				    <m:ci>ω</m:ci>
+				  </m:apply>
+				  <m:apply>
+				    <m:ci type="fn"><m:msub>
+					<m:mi>H</m:mi>
+					<m:mi>d</m:mi>
+				      </m:msub></m:ci>
+				    <m:ci>ω</m:ci>
+				  </m:apply>
+				</m:apply>
+			      </m:apply>
+			    </m:apply>
+			    <m:cn>2</m:cn>
+			  </m:apply>
+			</m:apply>
+		      </m:apply>
+		    </m:apply>
+
+		    <m:apply>
+		      <m:min/>
+		      <m:apply>
+			<m:times/>
+			<m:apply>
+			  <m:divide/>
+			  <m:cn>1</m:cn>
+			  <m:apply>
+			    <m:times/>
+			    <m:cn>2</m:cn>
+			    <m:pi/>
+			  </m:apply>
+			</m:apply>
+			<m:apply>
+			  <m:int/>
+			  <m:bvar><m:ci>ω</m:ci></m:bvar>
+			  <m:lowlimit>
+			    <m:apply>
+			      <m:minus/>
+			      <m:pi/>
+			    </m:apply>
+			  </m:lowlimit>
+			  <m:uplimit>
+			    <m:pi/>
+			  </m:uplimit>
+			  <m:apply>
+			    <m:times/>
+			    <m:apply>
+			      <m:abs/>
+			      <m:apply>
+				<m:minus/>
+				<m:apply>
+				  <m:ci type="fn">H</m:ci>
+				  <m:ci>ω</m:ci>
+				</m:apply>
+				<m:apply>
+				  <m:ci type="fn"><m:msub>
+				      <m:mi>H</m:mi>
+				      <m:mi>d</m:mi>
+				    </m:msub></m:ci>
+				  <m:ci>ω</m:ci>
+				</m:apply>
+			      </m:apply>
+			    </m:apply>
+			    <m:apply>
+			      <m:power/>
+			      <m:apply>
+				<m:abs/>
+				<m:apply>
+				  <m:ci type="fn">X</m:ci>
+				  <m:ci>ω</m:ci>
+				</m:apply>
+			      </m:apply>
+			      <m:cn>2</m:cn>
+			    </m:apply>
+			  </m:apply>
+			</m:apply>
+		      </m:apply>
+		    </m:apply>
+		  </m:apply>
+		</m:math>
+	      </equation>
+	      This is simply weighted least squares design, with 
+	      <m:math>
+		<m:apply>
+		  <m:power/>
+		  <m:apply>
+		    <m:abs/>
+		    <m:apply>
+		      <m:ci type="fn">X</m:ci>
+		      <m:ci>ω</m:ci>
+		    </m:apply>
+		  </m:apply>
+		  <m:cn>2</m:cn>
+		</m:apply>
+	      </m:math> as the weighting function.
+	    </item>
+	    <item><label>stochastic X(ω)</label>
+	      <equation id="eqn3">
+		<m:math>
+		  <m:apply>
+		    <m:eq/>
+		    <m:apply>
+		      <m:min/>
+		      <m:apply>
+			<m:csymbol definitionURL="http://cnx.rice.edu/cd/cnxmath.ocd#expectedvalue"/>
+			<m:apply>
+			  <m:power/>
+			  <m:apply>
+			    <m:abs/>
+			    <m:apply>
+			      <m:minus/>
+			      <m:apply>
+				<m:ci type="fn">x</m:ci>
+				<m:ci>n</m:ci>
+			      </m:apply>
+			      <m:apply>
+				<m:ci type="fn"><m:msub>
+				    <m:mi>x</m:mi>
+				    <m:mi>d</m:mi>
+				  </m:msub></m:ci>
+				<m:ci>n</m:ci>
+			      </m:apply>
+			    </m:apply>
+			  </m:apply>
+			  <m:cn>2</m:cn>
+			</m:apply>
+		      </m:apply>
+		    </m:apply>
+		    
+		    <m:apply>
+		      <m:csymbol definitionURL="http://cnx.rice.edu/cd/cnxmath.ocd#expectedvalue"/>
+		      <m:apply>
+			<m:power/>
+			<m:apply>
+			  <m:abs/>
+			  <m:apply>
+			    <m:csymbol definitionURL="http://cnx.rice.edu/cd/cnxmath.ocd#convolve"/>
+			    <m:apply>
+			      <m:ci type="fn">x</m:ci>
+			      <m:ci>n</m:ci>
+			    </m:apply>
+			    <m:apply>
+			      <m:minus/>
+			      <m:apply>
+				<m:ci type="fn">h</m:ci>
+				<m:ci>n</m:ci>
+			      </m:apply>
+			      <m:apply>
+				<m:ci type="fn"><m:msub>
+				    <m:mi>h</m:mi>
+				    <m:mi>d</m:mi>
+				  </m:msub></m:ci>
+				<m:ci>n</m:ci>
+			      </m:apply>
+			    </m:apply>
+			  </m:apply>
+			</m:apply>
+			<m:cn>2</m:cn>
+		      </m:apply>
+		    </m:apply>
+
+		    <m:apply>
+		      <m:min/>
+		      <m:apply>
+			<m:times/>
+			<m:apply>
+			  <m:divide/>
+			  <m:cn>1</m:cn>
+			  <m:apply>
+			    <m:times/>
+			    <m:cn>2</m:cn>
+			    <m:pi/>
+			  </m:apply>
+			</m:apply>
+			<m:apply>
+			  <m:int/>
+			  <m:bvar><m:ci>ω</m:ci></m:bvar>
+			  <m:lowlimit>
+			    <m:apply>
+			      <m:minus/>
+			      <m:pi/>
+			    </m:apply>
+			  </m:lowlimit>
+			  <m:uplimit>
+			    <m:pi/>
+			  </m:uplimit>
+			  <m:apply>
+			    <m:times/>
+			    <m:apply>
+			      <m:power/>
+			      <m:apply>
+				<m:abs/>
+				<m:apply>
+				  <m:minus/>
+				  <m:apply>
+				    <m:ci type="fn"><m:msub>
+					<m:mi>H</m:mi>
+					<m:mi>d</m:mi>
+				      </m:msub></m:ci>
+				    <m:ci>ω</m:ci>
+				  </m:apply>
+				  <m:apply>
+				    <m:ci type="fn">H</m:ci>
+				    <m:ci>ω</m:ci>
+				  </m:apply>
+				</m:apply>
+			      </m:apply>
+			      <m:cn>2</m:cn>
+			    </m:apply>
+			    <m:apply>
+			      <m:ci type="fn"><m:msub>
+				  <m:mi>S</m:mi>
+				  <m:mrow>
+				    <m:mi>x</m:mi>
+				    <m:mi>x</m:mi>
+				  </m:mrow>
+				</m:msub></m:ci>
+			      <m:ci>ω</m:ci>
+			    </m:apply>
+			  </m:apply>
+			</m:apply>
+		      </m:apply>
+		    </m:apply>
+
+		  </m:apply>
+		</m:math>
+	      </equation>
+	      <m:math>
+		<m:apply>
+		  <m:ci type="fn"><m:msub>
+		      <m:mi>S</m:mi>
+		      <m:mrow>
+			<m:mi>x</m:mi>
+			<m:mi>x</m:mi>
+		      </m:mrow>
+		    </m:msub></m:ci>
+		  <m:ci>ω</m:ci>
+		</m:apply>
+	      </m:math>
+	      is the power spectral density of
+	      <m:math><m:ci>x</m:ci></m:math>.
+
+	      <m:math display="block">
+		<m:apply>
+		  <m:eq/>
+		  <m:apply>
+		    <m:ci type="fn"><m:msub>
+			<m:mi>S</m:mi>
+			<m:mrow>
+			  <m:mi>x</m:mi>
+			  <m:mi>x</m:mi>
+			</m:mrow>
+		      </m:msub></m:ci>
+		    <m:ci>ω</m:ci>
+		  </m:apply>
+		  <m:apply>
+		    <m:ci type="fn" class="discrete">DTFT</m:ci>
+		    <m:apply>
+		      <m:ci type="fn"><m:msub>
+			  <m:mi>r</m:mi>
+			  <m:mrow>
+			    <m:mi>x</m:mi>
+			    <m:mi>x</m:mi>
+			  </m:mrow>
+			</m:msub></m:ci>
+		      <m:ci>k</m:ci>
+		    </m:apply>
+		  </m:apply>
+		</m:apply>
+	      </m:math>
+
+	      <m:math display="block">
+		<m:apply>
+		  <m:eq/>
+		  <m:apply>
+		    <m:ci type="fn"><m:msub>
+			<m:mi>r</m:mi>
+			<m:mrow>
+			  <m:mi>x</m:mi>
+			  <m:mi>x</m:mi>
+			</m:mrow>
+		      </m:msub></m:ci>
+		    <m:ci>k</m:ci>
+		  </m:apply>
+		  <m:apply>
+		    <m:csymbol definitionURL="http://cnx.rice.edu/cd/cnxmath.ocd#expectedvalue"/>
+		    <m:apply>
+		      <m:times/>
+		      <m:apply>
+			<m:ci type="fn">x</m:ci>
+			<m:apply>
+			  <m:plus/>
+			  <m:ci>k</m:ci>
+			  <m:ci>l</m:ci>
+			</m:apply>
+		      </m:apply>
+		      <m:apply>
+			<m:conjugate/>
+			<m:apply>
+			  <m:ci type="fn">x</m:ci>
+			  <m:ci>l</m:ci>
+			</m:apply>
+		      </m:apply>
+		    </m:apply>
+		  </m:apply>
+		</m:apply>
+	      </m:math>
+
+	      Again, a weighted least squares filter design problem.
+	    </item>
+	  </list>
+	</para>
+
+	<exercise id="ex3">
+	  <problem id="id6978778">
+	    <para id="paraex2">
+	      Is it feasible to use IIR polyphase filters?
+	    </para>
+	  </problem>
+	  <solution id="id1170264228504">
+	    <para id="solex2">
+	      The recursive feedback of previous outputs means that
+	      portions of each IIR polyphase filter must be computed
+	      for every input sample; this usually makes IIR filters
+	      more expensive than FIR implementations.
+	    </para>
+	  </solution>
+	</exercise>
+      </example>
+    </section>
+    
+  </content>
+  
+</document>

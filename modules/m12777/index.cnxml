@@ -1,0 +1,1033 @@
+<document xmlns="http://cnx.rice.edu/cnxml" xmlns:m="http://www.w3.org/1998/Math/MathML" xmlns:md="http://cnx.rice.edu/mdml" xmlns:bib="http://bibtexml.sf.net/">
+  <title>Overview of Multirate Signal Processing</title>
+  <metadata>
+  <md:content-id>m12777</md:content-id><md:title>Overview of Multirate Signal Processing</md:title>
+  <md:abstract/>
+  <md:uuid>8d2d61d3-d305-4768-ad46-1fb7c474f73e</md:uuid>
+</metadata>
+<featured-links>
+  <!-- WARNING! The 'featured-links' section is read only. Do not edit below.
+       Changes to the links section in the source will not be saved. -->
+    <link-group type="supplemental">
+      <link url="http://cnx.rice.edu/content/m12801/latest/" strength="3">Interpolation, Decimation, and Rate Changing by Integer Fractions</link>
+      <link url="http://cnx.rice.edu/content/m11002/latest/" strength="2">Perfect Reconstruction QMF</link>
+      <link url="http://cnx.rice.edu/content/m10426/latest/" strength="2">Two-Branch Quadvalue Mirror Filterbank (QMF)</link>
+      <link url="http://cnx.rice.edu/content/m11136/latest/" strength="2">Perfect Reconstruction (PR)</link>
+      <link url="http://cnx.rice.edu/content/m10788/latest/" strength="2">Reconstruction</link>
+      <link url="http://cnx.rice.edu/content/m10790/latest/" strength="2">More on Perfect Reconstruction</link>
+      <link url="http://cnx.rice.edu/content/m10414/latest/" strength="2">Bi-Orthogonal Perfect Reconstruction FIR Filterbanks</link>
+      <link url="http://cnx.rice.edu/content/m10412/latest/" strength="2">Perfect Reconstruction FIR Filter Banks</link>
+      <link url="http://cnx.rice.edu/content/m10413/latest/" strength="2">Orthogonal Perfect Reconstruction FIR Filterbank</link>
+      <link url="http://cnx.rice.edu/content/col10144/latest/" strength="2">Digital Signal Processing (Ohio State EE700)</link>
+      <link url="http://cnx.rice.edu/content/col10285/latest/" strength="2">Digital Filter Design</link>
+      <link url="http://cnx.rice.edu/content/col10280/latest/" strength="2">Adaptive Filters</link>
+      <link url="http://cnx.rice.edu/content/col10259/latest/" strength="2">Digital Filter Structures and Quantization Error Analysis</link>
+      <link url="http://cnx.rice.edu/content/col10281/latest/" strength="1">The DFT, FFT, and Practical Spectral Analysis</link>
+    </link-group>
+  <!-- WARNING! The 'featured-links' section is read only. Do not edit above.
+       Changes to the links section in the source will not be saved. -->
+</featured-links>
+<content>
+    <para id="para1">
+      Digital transformation of the sampling rate of signals, or
+      signal processing with different sampling rates in the system.
+    </para>
+
+    <section id="sec1">
+      <title>Applications</title>
+      <para id="para2">
+	<list id="list1" list-type="enumerated">
+	  <item><label>Sampling-rate conversion</label>
+	    
+	    CD to DAT format change, for example.
+	  </item>
+	  <item><label>Improved D/A, A/D conversion</label>
+	     oversampling
+	    converters; which reduce performance requirements on
+	    anti-aliasing or reconstruction filters
+	  </item>
+	  <item><label>FDM channel modulation and processing</label>
+	    
+	    bandwidth of individual channels is much less than the
+	    overall bandwidth
+	  </item>
+	  <item><label>Subband coding of speech and images</label>
+	     Eyes and
+	    ears are not as sensitive to errors in higher frequency
+	    bands, so many coding schemes split signals into different
+	    frequency bands and quantize higher-frequency bands with
+	    much less precision.
+	  </item>
+	</list>
+      </para>
+    </section>
+
+    <section id="sec2">
+      <title>Outline of Multirate DSP material</title>
+      <list id="list2" list-type="enumerated">
+	<item>
+	  <link target-id="sec3">General Rate-changing System</link></item>
+	<item>
+	  <link document="m12801">Integer-factor Interpolation and
+	  Decimation and Rational-factor Rate Changing</link></item>
+	<item>
+	  <link document="m12800">Efficient Multirate Filter
+	  Structures</link></item>
+	<item>
+	  <link document="m12773">Optimal Filter Design for Multirate
+	  Systems</link></item>
+	<item>
+	  <link document="m12803">Multi-stage Multirate Systems</link></item>
+	<item>
+	  <link document="m12771">Oversampling D/As</link></item>
+	<item>
+	  <link document="m12770">Perfect-Reconstruction Filter Banks and
+	  Quadrature Mirror Filters</link></item>
+      </list>
+    </section>
+
+    <section id="sec3">
+      <title>General Rate-Changing Procedure</title>
+      <para id="para3">
+	This procedure is motivated by an analog-based method: one
+	conceptually simple method to change the sampling rate is to
+	simply convert a digital signal to an analog signal and
+	resample it! (<link target-id="fig1"/>)
+
+	<figure id="fig1">
+	  <media id="id8084926" alt="">
+            <image src="../../media/imag001-3f31.png" mime-type="image/png"/>
+            <image for="pdf" src="../../media/imag001-59d8.eps" mime-type="application/postscript"/>
+          </media>
+	</figure>
+
+	<m:math display="block">
+	  <m:apply>
+	    <m:eq/>
+	    <m:apply>
+	      <m:ci type="fn"><m:msub>
+		  <m:mi>H</m:mi>
+		  <m:mi>aa</m:mi>
+		</m:msub></m:ci>
+	      <m:ci>Ω</m:ci>
+	    </m:apply>
+	    <m:piecewise>
+	      <m:piece>
+		<m:cn>1</m:cn>
+		<m:apply>
+		  <m:lt/>
+		  <m:apply>
+		    <m:abs/>
+		    <m:ci>Ω</m:ci>
+		  </m:apply>
+		  <m:apply>
+		    <m:divide/>
+		    <m:pi/>
+		  <m:ci><m:msub>
+			<m:mi>T</m:mi>
+		      <m:mn>1</m:mn>
+		      </m:msub></m:ci>
+		  </m:apply>
+		</m:apply>
+	      </m:piece>
+	      <m:otherwise>
+		<m:cn>0</m:cn>
+	      </m:otherwise>
+	    </m:piecewise>
+	  </m:apply>
+	</m:math>
+
+	<m:math display="block">
+	  <m:apply>
+	    <m:eq/>
+	    <m:apply>
+	      <m:ci type="fn"><m:msub>
+		  <m:mi>h</m:mi>
+		  <m:mi>aa</m:mi>
+		</m:msub></m:ci>
+	    <m:ci>t</m:ci>
+	    </m:apply>
+	    <m:apply>
+	      <m:divide/>
+	      <m:apply>
+		<m:sin/>
+		<m:apply>
+		  <m:times/>
+		  <m:apply>
+		    <m:divide/>
+		    <m:pi/>
+		    <m:ci><m:msub>
+			<m:mi>T</m:mi>
+			<m:mn>1</m:mn>
+		      </m:msub></m:ci>
+		  </m:apply>
+		  <m:ci>t</m:ci>
+		</m:apply>
+	      </m:apply>
+	      <m:apply>
+		<m:times/>
+		<m:apply>
+		  <m:divide/>
+		  <m:pi/>
+		  <m:ci><m:msub>
+		      <m:mi>T</m:mi>
+		    <m:mn>1</m:mn>
+		    </m:msub></m:ci>
+		</m:apply>
+		<m:ci>t</m:ci>
+	      </m:apply>
+	    </m:apply>
+	  </m:apply>
+	</m:math>
+
+	Recall the ideal D/A:
+	<equation id="eqn1">
+	  <m:math>
+	    <m:apply>
+	      <m:eq/>
+	      <m:apply>
+		<m:ci type="fn"><m:msubsup>
+		    <m:mi>x</m:mi>
+		    <m:mi>a</m:mi>
+		    <m:mo>′</m:mo>
+		  </m:msubsup></m:ci>
+		<m:ci>t</m:ci>
+	      </m:apply>
+	      <m:apply>
+		<m:sum/>
+		<m:bvar><m:ci>n</m:ci></m:bvar>
+		<m:lowlimit>
+		  <m:apply>
+		    <m:minus/>
+		    <m:infinity/>
+		  </m:apply>
+		</m:lowlimit>
+		<m:uplimit><m:infinity/></m:uplimit>
+		<m:apply>
+		  <m:times/>
+		  <m:apply>
+		    <m:ci type="fn"><m:msub>
+			<m:mi>x</m:mi>
+			<m:mn>0</m:mn>
+		    </m:msub></m:ci>
+		    <m:ci>n</m:ci>
+		  </m:apply>
+		  <m:apply>
+		    <m:divide/>
+		    <m:apply>
+		      <m:sin/>
+		      <m:apply>
+			<m:divide/>
+			<m:apply>
+			  <m:times/>
+			  <m:pi/>
+			  <m:apply>
+			    <m:minus/>
+			    <m:ci>t</m:ci>
+			    <m:apply>
+                              <m:times/>
+                              <m:ci>n</m:ci>
+                              <m:ci><m:msub>
+				<m:mi>T</m:mi>
+				<m:mn>0</m:mn>
+			      </m:msub></m:ci>
+                            </m:apply>
+			  </m:apply>
+			</m:apply>
+			<m:ci><m:msub>
+			    <m:mi>T</m:mi>
+			    <m:mn>0</m:mn>
+			  </m:msub></m:ci>
+		      </m:apply>
+		    </m:apply>
+		    <m:apply>
+		      <m:divide/>
+		      <m:apply>
+			<m:times/>
+			<m:pi/>
+			<m:apply>
+			  <m:minus/>
+			  <m:ci>t</m:ci>
+			  <m:apply>
+			    <m:times/>
+			    <m:ci>n</m:ci>
+			    <m:ci><m:msub>
+				<m:mi>T</m:mi>
+				<m:mn>0</m:mn>
+			      </m:msub></m:ci>
+			  </m:apply>
+			</m:apply>
+		      </m:apply>
+		      <m:ci><m:msub>
+			  <m:mi>T</m:mi>
+			  <m:mn>0</m:mn>
+			</m:msub></m:ci>
+		    </m:apply>
+		  </m:apply>
+		</m:apply>
+	      </m:apply>
+	    </m:apply>
+	  </m:math>
+	</equation>
+
+	The problems with this scheme are: 
+	<list id="list3" list-type="enumerated">
+	  <item>A/D, D/A, <!-- something else? --> filters cost money</item>
+	  <item>imperfections in these devices introduce errors</item>
+	</list>
+      </para>
+
+      <para id="para4">
+	Digital implementation of rate-changing according to this
+	formula has three problems: 
+	<list id="list4" list-type="enumerated">
+	  <item>
+	    Infinite sum:  The solution is to truncate.  Consider 
+	    <m:math>
+	      <m:apply>
+		<m:approx/>
+		<m:apply>
+		  <m:ci><m:mo>sinc</m:mo></m:ci>
+		  <m:ci>t</m:ci>
+		</m:apply>
+		<m:cn>0</m:cn>
+	      </m:apply>
+	    </m:math> for 
+	    <m:math>
+	      <m:apply>
+		<m:lt/>
+		<m:ci>t</m:ci>
+		<m:ci><m:msub>
+		    <m:mi>t</m:mi>
+		    <m:mn>1</m:mn>
+		  </m:msub></m:ci>
+	      </m:apply>
+	    </m:math>, 
+	    <m:math>
+	      <m:apply>
+		<m:gt/>
+		<m:ci>t</m:ci>
+		<m:ci><m:msub>
+		    <m:mi>t</m:mi>
+		    <m:mn>2</m:mn>
+		  </m:msub></m:ci>
+	      </m:apply>
+	    </m:math>:  Then 
+	    
+	    <m:math>
+	      <m:apply>
+		<m:lt/>
+		<m:apply>
+		  <m:minus/>
+		  <m:apply>
+		    <m:times/>
+		    <m:ci>m</m:ci>
+		    <m:ci><m:msub>
+			<m:mi>T</m:mi>
+			<m:mn>1</m:mn>
+		      </m:msub></m:ci>
+		  </m:apply>
+		  <m:apply>
+		    <m:times/>
+		    <m:ci>n</m:ci>
+		    <m:ci><m:msub>
+			<m:mi>T</m:mi>
+			<m:mn>0</m:mn>
+		    </m:msub></m:ci>
+		  </m:apply>
+		</m:apply>
+		<m:ci><m:msub>
+		    <m:mi>t</m:mi>
+		    <m:mn>1</m:mn>
+		  </m:msub></m:ci>
+	      </m:apply>
+	    </m:math> and 
+	    <m:math>
+	      <m:apply>
+		<m:gt/>
+		<m:apply>
+		  <m:minus/>
+		  <m:apply>
+		    <m:times/>
+		    <m:ci>m</m:ci>
+		    <m:ci><m:msub>
+			<m:mi>T</m:mi>
+			<m:mn>1</m:mn>
+		      </m:msub></m:ci>
+		  </m:apply>
+		  <m:apply>
+		    <m:times/>
+		    <m:ci>n</m:ci>
+		    <m:ci><m:msub>
+			<m:mi>T</m:mi>
+			<m:mn>0</m:mn>
+		      </m:msub></m:ci>
+		  </m:apply>
+		</m:apply>
+		<m:ci><m:msub>
+		    <m:mi>t</m:mi>
+		    <m:mn>2</m:mn>
+		  </m:msub></m:ci>
+	      </m:apply>
+	    </m:math> which implies 
+
+	    <m:math display="block">
+	      <m:apply>
+		<m:eq/>
+		<m:ci><m:msub>
+		    <m:mi>N</m:mi>
+		    <m:mn>1</m:mn>
+		  </m:msub></m:ci>
+		<m:apply>
+		  <m:ceiling/>
+		  <m:apply>
+		    <m:divide/>
+		    <m:apply>
+		      <m:minus/>
+		      <m:apply>
+			<m:times/>
+			<m:ci>m</m:ci>
+			<m:ci><m:msub>
+			    <m:mi>T</m:mi>
+			    <m:mn>1</m:mn>
+			  </m:msub></m:ci>
+		      </m:apply>
+		      <m:ci><m:msub>
+			  <m:mi>t</m:mi>
+			  <m:mn>2</m:mn>
+			</m:msub></m:ci>
+		    </m:apply>
+		    <m:ci><m:msub>
+			<m:mi>T</m:mi>
+			<m:mn>0</m:mn>
+		      </m:msub></m:ci>
+		  </m:apply>
+		</m:apply>
+	      </m:apply>
+	    </m:math>
+
+	    <m:math display="block">
+	      <m:apply>
+		<m:eq/>
+		<m:ci><m:msub>
+		    <m:mi>N</m:mi>
+		    <m:mn>2</m:mn>
+		  </m:msub></m:ci>
+		<m:apply>
+		  <m:floor/>
+		  <m:apply>
+		    <m:divide/>
+		    <m:apply>
+		      <m:minus/>
+		      <m:apply>
+			<m:times/>
+			<m:ci>m</m:ci>
+			<m:ci><m:msub>
+			    <m:mi>T</m:mi>
+			    <m:mn>1</m:mn>
+			  </m:msub></m:ci>
+		      </m:apply>
+		      <m:ci><m:msub>
+			  <m:mi>t</m:mi>
+			  <m:mn>1</m:mn>
+			</m:msub></m:ci>
+		    </m:apply>
+		    <m:ci><m:msub>
+			<m:mi>T</m:mi>
+			<m:mn>0</m:mn>
+		      </m:msub></m:ci>
+		  </m:apply>
+		</m:apply>
+	      </m:apply>
+	    </m:math>
+
+	    <m:math display="block">
+	      <m:apply>
+		<m:eq/>
+		<m:apply>
+		  <m:ci type="fn"><m:msub>
+		      <m:mi>x</m:mi>
+		      <m:mn>1</m:mn>
+		    </m:msub></m:ci>
+		  <m:ci>m</m:ci>
+		</m:apply>
+		<m:apply>
+		  <m:sum/>
+		  <m:bvar><m:ci>n</m:ci></m:bvar>
+		  <m:lowlimit>
+		    <m:ci><m:msub>
+			<m:mi>N</m:mi>
+			<m:mn>1</m:mn>
+		      </m:msub></m:ci>
+		  </m:lowlimit>
+		  <m:uplimit>
+		    <m:ci><m:msub>
+			<m:mi>N</m:mi>
+			<m:mn>2</m:mn>
+		      </m:msub></m:ci>
+		  </m:uplimit>
+		  <m:apply>
+		    <m:times/>
+		    <m:apply>
+		      <m:ci type="fn"><m:msub>
+			  <m:mi>x</m:mi>
+			  <m:mn>0</m:mn>
+			</m:msub></m:ci>
+		      <m:ci>n</m:ci>
+		    </m:apply>
+		    <m:apply>
+		      <m:ci><m:msub>
+			  <m:mo>sinc</m:mo>
+			  <m:msup>
+			    <m:mi>T</m:mi>
+			    <m:mo>′</m:mo>
+			  </m:msup>
+			</m:msub></m:ci>
+		      <m:apply>
+			<m:minus/>
+			<m:apply>
+			  <m:times/>
+			  <m:ci>m</m:ci>
+			  <m:ci><m:msub>
+			      <m:mi>T</m:mi>
+			      <m:mn>1</m:mn>
+			    </m:msub></m:ci>
+			</m:apply>
+			<m:apply>
+			  <m:times/>
+			  <m:ci>n</m:ci>
+			  <m:ci><m:msub>
+			      <m:mi>T</m:mi>
+			      <m:mn>0</m:mn>
+			    </m:msub></m:ci>
+			</m:apply>
+		      </m:apply>
+		    </m:apply>
+		  </m:apply>
+		</m:apply>
+	      </m:apply>
+	    </m:math>
+
+	    <note id="id7274382" type="note">
+	      This is essentially lowpass filter design using a boxcar
+	      window: other finite-length filter design methods could be
+	      used for this.
+	    </note>
+	  </item>
+	  <item>
+	    Lack of <link document="m2102" target-id="causality">causality</link>:  The solution is to delay by 
+	    <m:math>
+	      <m:apply>
+		<m:max/>
+		<m:apply>
+		  <m:abs/>
+		  <m:ci>N</m:ci>
+		</m:apply>
+	      </m:apply>
+	    </m:math> samples.  The mathematics of the analog portions
+	    of this system can be implemented digitally.
+
+	    <equation id="eqn2">
+	      <m:math>
+		<m:apply>
+		  <m:eq/>
+		  <m:apply>
+		    <m:ci type="fn"><m:msub>
+			<m:mi>x</m:mi>
+			<m:mn>1</m:mn>
+		    </m:msub></m:ci>
+		    <m:ci>m</m:ci>
+		  </m:apply>
+		<m:apply>
+		    <m:csymbol definitionURL="http://cnx.rice.edu/cd/cnxmath.ocd#evaluateat"/>
+		    <m:bvar><m:ci>t</m:ci></m:bvar>
+		    <m:lowlimit>
+		      <m:apply>
+			<m:times/>
+			<m:ci>m</m:ci>
+			<m:ci><m:msub>
+			  <m:mi>T</m:mi>
+			    <m:mn>1</m:mn>
+			  </m:msub></m:ci>
+		      </m:apply>
+		    </m:lowlimit>       
+		    <m:apply>
+		      <m:csymbol definitionURL="http://cnx.rice.edu/cd/cnxmath.ocd#convolve"/>
+		      <m:apply>
+			<m:ci type="fn"><m:msub>
+			    <m:mi>h</m:mi>
+			    <m:mi>aa</m:mi>
+			  </m:msub></m:ci>
+			<m:ci>t</m:ci>
+		      </m:apply>
+		      <m:apply>
+			<m:ci type="fn"><m:msubsup>
+			    <m:mi>x</m:mi>
+			    <m:mi>a</m:mi>
+			    <m:mo>′</m:mo>
+			  </m:msubsup></m:ci>
+			<m:ci>t</m:ci>
+		      </m:apply>
+		    </m:apply>
+		  </m:apply>
+		  
+		  <m:apply>
+		    <m:int/>
+		    <m:bvar><m:ci>τ</m:ci></m:bvar>
+		    <m:lowlimit>
+		      <m:apply>
+			<m:minus/>
+			<m:infinity/>
+		      </m:apply>
+		    </m:lowlimit>
+		    <m:uplimit>
+		      <m:infinity/>
+		    </m:uplimit>
+		    <m:apply>
+		      <m:times/>
+		      <m:apply>
+			<m:sum/>
+			<m:bvar><m:ci>n</m:ci></m:bvar>
+			<m:lowlimit>
+			  <m:apply>
+			    <m:minus/>
+			    <m:infinity/>
+			  </m:apply>
+			</m:lowlimit>
+			<m:uplimit>
+			  <m:infinity/>
+			</m:uplimit>
+			<m:apply>
+			  <m:times/>
+			  <m:apply>
+			    <m:ci type="fn"><m:msub>
+				<m:mi>x</m:mi>
+				<m:mn>0</m:mn>
+			      </m:msub></m:ci>
+			    <m:ci>n</m:ci>
+			  </m:apply>
+			  <m:apply>
+			    <m:divide/>
+			    <m:apply>
+			      <m:sin/>
+			      <m:apply>
+				<m:divide/>
+				<m:apply>
+				  <m:times/>
+				  <m:pi/>
+				  <m:apply>
+				    <m:minus/>
+				    <m:apply>
+				      <m:minus/>
+				      <m:apply>
+					<m:times/>
+					<m:ci>m</m:ci>
+					<m:ci><m:msub>
+					    <m:mi>T</m:mi>
+					    <m:mn>1</m:mn>
+					  </m:msub></m:ci>
+				      </m:apply>
+				      <m:ci>τ</m:ci>
+				    </m:apply>
+				    <m:apply>
+				      <m:times/>
+				      <m:ci>n</m:ci>
+				      <m:ci><m:msub>
+					  <m:mi>T</m:mi>
+					  <m:mn>0</m:mn>
+					</m:msub></m:ci>
+				    </m:apply>
+				  </m:apply>
+				</m:apply>
+				<m:ci><m:msub>
+				    <m:mi>T</m:mi>
+				    <m:mn>0</m:mn>
+				  </m:msub></m:ci>
+			      </m:apply>
+			    </m:apply>
+			    <m:apply>
+			      <m:divide/>
+			      <m:apply>
+				<m:times/>
+				<m:pi/>
+				<m:apply>
+				  <m:minus/>
+				  <m:apply>
+				    <m:minus/>
+				    <m:apply>
+				      <m:times/>
+				      <m:ci>m</m:ci>
+				      <m:ci><m:msub>
+					  <m:mi>T</m:mi>
+					  <m:mn>1</m:mn>
+					</m:msub></m:ci>
+				    </m:apply>
+				    <m:ci>τ</m:ci>
+				  </m:apply>
+				  <m:apply>
+				    <m:times/>
+				    <m:ci>n</m:ci>
+				    <m:ci><m:msub>
+					<m:mi>T</m:mi>
+					<m:mn>0</m:mn>
+				      </m:msub></m:ci>
+				  </m:apply>
+				</m:apply>
+			      </m:apply>
+			      <m:ci><m:msub>
+				  <m:mi>T</m:mi>
+				  <m:mn>0</m:mn>
+				</m:msub></m:ci>
+			    </m:apply>
+			  </m:apply>
+			</m:apply>
+		      </m:apply>
+		      <m:apply>
+			<m:divide/>
+			<m:apply>
+			  <m:sin/>
+			  <m:apply>
+			    <m:divide/>
+			    <m:apply>
+			      <m:times/>
+			      <m:pi/>
+			      <m:ci>τ</m:ci>
+			    </m:apply>
+			    <m:ci><m:msub>
+				<m:mi>T</m:mi>
+				<m:mn>1</m:mn>
+			      </m:msub></m:ci>
+			  </m:apply>
+			</m:apply>
+			<m:apply>
+			  <m:divide/>
+			  <m:apply>
+			    <m:times/>
+			    <m:pi/>
+			    <m:ci>τ</m:ci>
+			  </m:apply>
+			  <m:ci><m:msub>
+			      <m:mi>T</m:mi>
+			      <m:mn>1</m:mn>
+			    </m:msub></m:ci>
+			</m:apply>
+		      </m:apply>
+		    </m:apply>
+		  </m:apply>
+		</m:apply>
+	      </m:math>
+	    </equation>
+
+	    <equation id="eqn3">
+	      <m:math>
+		<m:apply>
+		  <m:eq/>
+		  <m:apply>
+		    <m:ci type="fn"><m:msub>
+			<m:mi>x</m:mi>
+			<m:mn>1</m:mn>
+		      </m:msub></m:ci>
+		    <m:ci>m</m:ci>
+		  </m:apply>
+		  <m:apply>
+		    <m:csymbol definitionURL="http://cnx.rice.edu/cd/cnxmath.ocd#evaluateat"/>
+		    <m:bvar>
+		      <m:ci><m:msup>
+			  <m:mi>T</m:mi>
+			  <m:mo>′</m:mo>
+			</m:msup></m:ci>
+		    </m:bvar>
+		    <m:lowlimit>
+		      <m:apply>
+			<m:max/>
+			<m:ci><m:msub>
+			    <m:mi>T</m:mi>
+			    <m:mn>0</m:mn>
+			  </m:msub></m:ci>
+			<m:ci><m:msub>
+			    <m:mi>T</m:mi>
+			    <m:mn>1</m:mn>
+			  </m:msub></m:ci>
+		      </m:apply>
+		    </m:lowlimit>
+		    <m:apply>
+		      <m:sum/>
+		      <m:bvar><m:ci>n</m:ci></m:bvar>
+		      <m:lowlimit>
+			<m:apply>
+			  <m:minus/>
+			  <m:infinity/>
+			</m:apply>
+		      </m:lowlimit>
+		      <m:uplimit>
+			<m:infinity/>
+		      </m:uplimit>
+		      <m:apply>
+			<m:times/>
+			<m:apply>
+			  <m:ci type="fn"><m:msub>
+			      <m:mi>x</m:mi>
+			      <m:mn>0</m:mn>
+			    </m:msub></m:ci>
+			  <m:ci>n</m:ci>
+			</m:apply>
+			<m:apply>
+			  <m:divide/>
+			  <m:apply>
+			    <m:sin/>
+			    <m:apply>
+			      <m:times/>
+			      <m:apply>
+				<m:divide/>
+				<m:pi/>
+				<m:ci><m:msup>
+				    <m:mi>T</m:mi>
+				    <m:mo>′</m:mo>
+				  </m:msup></m:ci>
+			      </m:apply>
+			      <m:apply>
+				<m:minus/>
+				<m:apply>
+				  <m:times/>
+				  <m:ci>m</m:ci>
+				  <m:ci><m:msub>
+				      <m:mi>T</m:mi>
+				      <m:mn>1</m:mn>
+				    </m:msub></m:ci>
+				</m:apply>
+				<m:apply>
+				  <m:times/>
+				  <m:ci>n</m:ci>
+				  <m:ci><m:msub>
+				      <m:mi>T</m:mi>
+				      <m:mn>0</m:mn>
+				    </m:msub></m:ci>
+				</m:apply>
+			      </m:apply>
+			    </m:apply>
+			  </m:apply>
+			  <m:apply>
+			    <m:times/>
+			    <m:apply>
+			      <m:divide/>
+			      <m:pi/>
+			      <m:ci><m:msup>
+				  <m:mi>T</m:mi>
+				  <m:mo>′</m:mo>
+				</m:msup></m:ci>
+			    </m:apply>
+			    <m:apply>
+			      <m:minus/>
+			      <m:apply>
+				<m:times/>
+				<m:ci>m</m:ci>
+				<m:ci><m:msub>
+				    <m:mi>T</m:mi>
+				    <m:mn>1</m:mn>
+				  </m:msub></m:ci>
+			      </m:apply>
+			      <m:apply>
+				<m:times/>
+				<m:ci>n</m:ci>
+				<m:ci><m:msub>
+				    <m:mi>T</m:mi>
+				    <m:mn>0</m:mn>
+				  </m:msub></m:ci>
+			      </m:apply>
+			    </m:apply>
+			  </m:apply>
+			</m:apply>
+		      </m:apply>
+		    </m:apply>
+		  </m:apply>
+
+		  <m:apply>
+		    <m:sum/>
+		    <m:bvar><m:ci>n</m:ci></m:bvar>
+		    <m:lowlimit>
+		      <m:apply>
+			<m:minus/>
+			<m:infinity/>
+		      </m:apply>
+		    </m:lowlimit>
+		    <m:uplimit>
+		      <m:infinity/>
+		    </m:uplimit>
+		    <m:apply>
+		      <m:times/>
+		      <m:apply>
+			<m:ci type="fn"><m:msub>
+			    <m:mi>x</m:mi>
+			    <m:mn>0</m:mn>
+			  </m:msub></m:ci>
+			<m:ci>n</m:ci>
+		      </m:apply>
+		      <m:apply>
+			<m:ci type="fn"><m:msub>
+			    <m:mo>sinc</m:mo>
+			    <m:msup>
+			      <m:mi>T</m:mi>
+			      <m:mo>′</m:mo>
+			    </m:msup>
+			  </m:msub></m:ci>
+			<m:apply>
+			  <m:minus/>
+			  <m:apply>
+			    <m:times/>
+			    <m:ci>m</m:ci>
+			    <m:ci><m:msub>
+				<m:mi>T</m:mi>
+				<m:mn>1</m:mn>
+			      </m:msub></m:ci>
+			  </m:apply>
+			  <m:apply>
+			    <m:times/>
+			    <m:ci>n</m:ci>
+			    <m:ci><m:msub>
+				<m:mi>T</m:mi>
+				<m:mn>0</m:mn>
+			      </m:msub></m:ci>
+			  </m:apply>
+			</m:apply>
+		      </m:apply>
+		    </m:apply>
+		  </m:apply>
+		</m:apply>
+	      </m:math>
+	    </equation>
+	    
+	    So we have an all-digital formula for
+	    <emphasis>exact</emphasis> digital-to-digital rate changing!
+	  </item>
+	  
+	  <item>
+	    Cost of computing 
+	    <m:math>
+	      <m:apply>
+		<m:ci type="fn"><m:msub>
+		    <m:mo>sinc</m:mo>
+		    <m:msup>
+		      <m:mi>T</m:mi>
+		      <m:mo>′</m:mo>
+		    </m:msup>
+		  </m:msub></m:ci>
+		<m:apply>
+		  <m:minus/>
+		  <m:apply>
+		    <m:times/>
+		    <m:ci>m</m:ci>
+		    <m:ci><m:msub>
+			<m:mi>T</m:mi>
+			<m:mn>1</m:mn>
+		      </m:msub></m:ci>
+		  </m:apply>
+		  <m:apply>
+		    <m:times/>
+		    <m:ci>n</m:ci>
+		    <m:ci><m:msub>
+			<m:mi>T</m:mi>
+			<m:mn>0</m:mn>
+		      </m:msub></m:ci>
+		  </m:apply>
+		</m:apply>
+	      </m:apply>
+	    </m:math>:  The solution is to precompute the table of 
+	    <m:math>
+	      <m:apply>
+		<m:ci type="fn">sinc</m:ci>
+		<m:ci>t</m:ci>
+	      </m:apply>
+	    </m:math> values.  However, if 
+	    <m:math>
+	      <m:apply>
+		<m:divide/>
+		<m:ci><m:msub>
+		    <m:mi>T</m:mi>
+		    <m:mn>1</m:mn>
+		  </m:msub></m:ci>
+		<m:ci><m:msub>
+		    <m:mi>T</m:mi>
+		    <m:mn>0</m:mn>
+		  </m:msub></m:ci>
+	      </m:apply>
+	    </m:math> is not a rational fraction, an infinite number of
+	    samples will be needed, so some approximation will have to
+	    be tolerated.
+	    <note id="id1172330768727" type="note">
+	      Rate transformation of any rate to any other rate can be
+	      accomplished digitally with arbitrary precision (if some
+	      delay is acceptable).  This method is used in practice in
+	      many cases.  We will examine a number of special cases and
+	      computational improvements, but in some sense everything
+	      that follows are details; the above idea is the central
+	      idea in multirate signal processing.
+	    </note>
+	  </item>
+	</list>
+      </para>
+    </section>
+
+    <para id="para5">
+      Useful references for the traditional material (everything
+      except PRFBs) are <cite target-id="candr1981"><cite-title>Crochiere and Rabiner,
+      1981</cite-title></cite> and <cite target-id="candr1983"><cite-title>Crochiere and Rabiner,
+      1983</cite-title></cite>.  A more recent tutorial is <cite target-id="Vaid"><cite-title>Vaidyanathan</cite-title></cite>; see also <cite target-id="randv"><cite-title>Rioul
+      and Vetterli</cite-title></cite>.  References to most of the original papers
+      can be found in these tutorials.
+    </para>
+  </content>
+
+  <bib:file>
+    
+    <bib:entry id="candr1981">
+      <bib:article>
+	<bib:author>R.E. Crochiere and L.R. Rabiner</bib:author>
+	<bib:title>
+	  Interpolation and Decimation of Digital Signals:  A Tutorial Review
+	</bib:title>
+	<bib:journal>Proc. IEEE</bib:journal>
+	<bib:year>1981</bib:year>
+	<bib:volume>69</bib:volume>
+	<bib:number>3</bib:number>
+	<bib:pages>300-331</bib:pages>
+	<bib:month>March</bib:month>
+      </bib:article>
+    </bib:entry>
+
+    <bib:entry id="candr1983">
+      <bib:book>
+	<bib:author>R.E. Crochiere and L.R. Rabiner</bib:author>
+	<bib:title>Multirate Digital Signal Processing</bib:title>
+	<bib:publisher>Prentice-Hall</bib:publisher>
+	<bib:year>1983</bib:year>
+	<bib:address>Englewood Cliffs, NJ</bib:address>
+      </bib:book>
+    </bib:entry>
+    
+    <bib:entry id="Vaid">
+      <bib:article>
+	<bib:author>P.P Vaidyanathan</bib:author>
+	<bib:title>
+	  Multirate Digital Filters, Filter Banks, Polyphase Networks,
+	and Applications: A Tutorial</bib:title>
+	<bib:journal>Proc. IEEE</bib:journal>
+	<bib:year>1990</bib:year> <bib:volume>78</bib:volume>
+	<bib:number>1</bib:number> <bib:pages>56-93</bib:pages>
+	<bib:month>January</bib:month>
+      </bib:article>
+    </bib:entry>
+    
+    <bib:entry id="randv">
+      <bib:article>
+	<bib:author>O. Rioul and M. Vetterli</bib:author>
+	<bib:title>Wavelets and Signal Processing</bib:title>
+	<bib:journal>IEEE Signal Processing Magazine</bib:journal>
+	<bib:year>1991</bib:year>
+	<bib:volume>8</bib:volume>
+	<bib:number>4</bib:number>
+	<bib:pages>14-38</bib:pages>
+	<bib:month>October</bib:month>
+      </bib:article>
+    </bib:entry>
+  </bib:file>
+</document>

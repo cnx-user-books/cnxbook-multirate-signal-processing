@@ -1,0 +1,20 @@
+<col:collection xmlns="http://cnx.rice.edu/collxml" xmlns:col="http://cnx.rice.edu/collxml" xml:lang="en">
+  <metadata xmlns:md="http://cnx.rice.edu/mdml" mdml-version="0.5">
+    <md:content-id>col10287</md:content-id>
+    <md:title>Multirate Signal Processing</md:title>
+    <md:language>en</md:language>
+    <md:license url="http://creativecommons.org/licenses/by/2.0/">Creative Commons Attribution License</md:license>
+    <md:uuid>73e34efa-97db-43f1-98c7-d01f36bc09e7</md:uuid>
+<md:slug>multirate-signal-processing</md:slug>
+</metadata>
+  <col:content>
+    <col:module document="m12777"/>
+    <col:module document="m12801"/>
+    <col:module document="m12800"/>
+    <col:module document="m12773"/>
+    <col:module document="m12803"/>
+    <col:module document="m12771"/>
+    <col:module document="m12770"/>
+    <col:module document="m12775"/>
+  </col:content>
+</col:collection>

@@ -1,0 +1,1331 @@
+<document xmlns="http://cnx.rice.edu/cnxml" xmlns:m="http://www.w3.org/1998/Math/MathML" xmlns:md="http://cnx.rice.edu/mdml">
+  <title>Interpolation, Decimation, and Rate Changing by Integer Fractions</title>
+  <metadata>
+  <md:content-id>m12801</md:content-id><md:title>Interpolation, Decimation, and Rate Changing by Integer Fractions</md:title>
+  <md:abstract/>
+  <md:uuid>f6b7764c-25f1-48ba-ade7-b92f0ef52695</md:uuid>
+</metadata>
+<featured-links>
+  <!-- WARNING! The 'featured-links' section is read only. Do not edit below.
+       Changes to the links section in the source will not be saved. -->
+    <link-group type="supplemental">
+      <link url="http://cnx.rice.edu/content/m12800/latest/" strength="3">Efficient Multirate Filter Structures</link>
+      <link url="http://cnx.rice.edu/content/m10870/latest/" strength="2">Digital Filter Design for Interpolation and Decimation</link>
+      <link url="http://cnx.rice.edu/content/m10444/latest/" strength="2">Interpolation</link>
+      <link url="http://cnx.rice.edu/content/col10144/latest/" strength="2">Digital Signal Processing (Ohio State EE700)</link>
+      <link url="http://cnx.rice.edu/content/col10280/latest/" strength="2">Adaptive Filters</link>
+      <link url="http://cnx.rice.edu/content/col10259/latest/" strength="2">Digital Filter Structures and Quantization Error Analysis</link>
+      <link url="http://cnx.rice.edu/content/col10281/latest/" strength="1">The DFT, FFT, and Practical Spectral Analysis</link>
+    </link-group>
+    <link-group type="prerequisite">
+      <link url="http://cnx.rice.edu/content/m12777/latest/" strength="3">Overview of Multirate Signal Processing</link>
+    </link-group>
+    <link-group type="example">
+      <link url="http://cnx.rice.edu/content/m11006/latest/" strength="2">Application of Interpolation - Oversampling in CD Players</link>
+    </link-group>
+  <!-- WARNING! The 'featured-links' section is read only. Do not edit above.
+       Changes to the links section in the source will not be saved. -->
+</featured-links>
+<content>
+    <section id="sec1">
+      <title>Interpolation: by an integer factor L</title>
+      <para id="para1">
+	<term>Interpolation</term> means increasing the sampling rate,
+	or filling in in-between samples.  Equivalent to sampling a
+	bandlimited analog signal <m:math><m:ci>L</m:ci></m:math>
+	times faster.  For the ideal interpolator, 
+	<equation id="eqn1">
+	  <m:math display="block">
+	    <m:apply>
+	      <m:eq/>
+	      <m:apply>
+		<m:ci type="fn"><m:msub>
+		    <m:mi>X</m:mi>
+		    <m:mn>1</m:mn>
+		  </m:msub></m:ci>
+		<m:ci>ω</m:ci>
+	      </m:apply>
+	      <m:piecewise>
+		<m:piece>
+		  <m:apply>
+		    <m:ci type="fn"><m:msub>
+			<m:mi>X</m:mi>
+			<m:mn>0</m:mn>
+		      </m:msub></m:ci>
+		    <m:apply>
+		      <m:times/>
+		      <m:ci>L</m:ci>
+		      <m:ci>ω</m:ci>
+		    </m:apply>
+		  </m:apply>
+		  <m:apply>
+		    <m:lt/>
+		    <m:apply>
+		      <m:abs/>
+		      <m:ci>ω</m:ci>
+		    </m:apply>
+		    <m:apply>
+		      <m:divide/>
+		      <m:pi/>
+		      <m:ci>L</m:ci>
+		    </m:apply>
+		  </m:apply>
+		</m:piece>
+		<m:piece>
+		  <m:cn>0</m:cn>
+		  <m:apply>
+		    <m:leq/>
+		    <m:apply>
+		      <m:divide/>
+		      <m:pi/>
+		      <m:ci>L</m:ci>
+		    </m:apply>
+		    <m:apply>
+		      <m:abs/>
+		      <m:ci>ω</m:ci>
+		    </m:apply>
+		    <m:pi/>
+		  </m:apply>
+		</m:piece>
+	      </m:piecewise>
+	    </m:apply>
+	  </m:math>
+	</equation>
+
+	We wish to accomplish this digitally.  Consider <link target-id="eqn2"/> and <link target-id="fig1"/>.
+
+	<equation id="eqn2">
+	  <m:math display="block">
+	    <m:apply>
+	      <m:eq/>
+	      <m:apply>
+		<m:ci type="fn">y</m:ci>
+		<m:ci>m</m:ci>
+	      </m:apply>
+	      <m:piecewise>
+		<m:piece>
+		  <m:apply>
+		    <m:ci type="fn"><m:msub>
+			<m:mi>X</m:mi>
+			<m:mn>0</m:mn>
+		      </m:msub></m:ci>
+		    <m:apply>
+		      <m:divide/>
+		      <m:ci>m</m:ci>
+		      <m:ci>L</m:ci>
+		    </m:apply>
+		  </m:apply>
+		  <m:apply>
+		    <m:eq/>
+		    <m:ci>m</m:ci>
+		    <m:set>
+		      <m:cn>0</m:cn>
+		      <m:apply>
+			<m:ci><m:mo>±</m:mo></m:ci>
+			<m:ci>L</m:ci>
+		      </m:apply>
+		      <m:apply>
+			<m:ci><m:mo>±</m:mo></m:ci>
+			<m:apply>
+			  <m:times/>
+			  <m:cn>2</m:cn>
+			  <m:ci>L</m:ci>
+			</m:apply>
+		      </m:apply>
+		      <m:ci>…</m:ci>
+		    </m:set>
+		  </m:apply>
+		</m:piece>
+		<m:otherwise>
+		  <m:cn>0</m:cn>
+		</m:otherwise>
+	      </m:piecewise>
+	    </m:apply>
+	  </m:math>
+	</equation>
+	
+	<figure id="fig1">
+	  <media id="id1169605425566" alt="">
+            <image src="../../media/imag002-9007.png" mime-type="image/png"/>
+            <image for="pdf" src="../../media/imag002-9058.eps" mime-type="application/postscript"/>
+          </media>
+	</figure>
+
+	The DTFT of 
+	<m:math>
+	  <m:apply>
+	    <m:ci type="fn">y</m:ci>
+	    <m:ci>m</m:ci>
+	  </m:apply>
+	</m:math> is 
+
+	<equation id="eqn3">
+	  <m:math>
+	    <m:apply>
+	      <m:eq/>
+	      <m:apply>
+		<m:ci type="fn">Y</m:ci>
+		<m:ci>ω</m:ci>
+	      </m:apply>
+	      <m:apply>
+		<m:sum/>
+		<m:bvar><m:ci>m</m:ci></m:bvar>
+		<m:lowlimit>
+		  <m:apply>
+		    <m:minus/>
+		    <m:ci>ω</m:ci>
+		  </m:apply>
+		</m:lowlimit>
+		<m:uplimit><m:infinity/></m:uplimit>
+		<m:apply>
+		  <m:times/>
+		  <m:apply>
+		    <m:ci type="fn">y</m:ci>
+		    <m:ci>m</m:ci>
+		  </m:apply>
+		  <m:apply>
+		    <m:exp/>
+		    <m:apply>
+		      <m:minus/>
+		      <m:apply>
+			<m:times/>
+			<m:imaginaryi/>
+			<m:ci>ω</m:ci>
+			<m:ci>m</m:ci>
+		      </m:apply>
+		    </m:apply>
+		  </m:apply>
+		</m:apply>
+	      </m:apply>
+	    
+	      <m:apply>
+		<m:sum/>
+		<m:bvar><m:ci>n</m:ci></m:bvar>
+		<m:lowlimit>
+		  <m:apply>
+		    <m:minus/>
+		    <m:infinity/>
+		  </m:apply>
+		</m:lowlimit>
+		<m:uplimit><m:infinity/></m:uplimit>
+		<m:apply>
+		  <m:times/>
+		  <m:apply>
+		    <m:ci type="fn"><m:msub>
+			<m:mi>x</m:mi>
+			<m:mn>0</m:mn>
+		      </m:msub></m:ci>
+		    <m:ci>n</m:ci>
+		  </m:apply>
+		  <m:apply>
+		    <m:exp/>
+		    <m:apply>
+		      <m:minus/>
+		      <m:apply>
+			<m:times/>
+			<m:imaginaryi/>
+			<m:ci>ω</m:ci>
+			<m:ci>L</m:ci>
+			<m:ci>n</m:ci>
+		      </m:apply>
+		    </m:apply>
+		  </m:apply>
+		</m:apply>
+	      </m:apply>
+	    
+	      <m:apply>
+		<m:sum/>
+		<m:bvar><m:ci>n</m:ci></m:bvar>
+		<m:lowlimit>
+		  <m:apply>
+		    <m:minus/>
+		    <m:infinity/>
+		  </m:apply>
+		</m:lowlimit>
+		<m:uplimit><m:infinity/></m:uplimit>
+		<m:apply>
+		  <m:times/>
+		  <m:apply>
+		    <m:ci type="fn">x</m:ci>
+		    <m:ci>n</m:ci>
+		  </m:apply>
+		  <m:apply>
+		    <m:exp/>
+		    <m:apply>
+		      <m:minus/>
+		      <m:apply>
+			<m:times/>
+			<m:imaginaryi/>
+			<m:ci>ω</m:ci>
+			<m:ci>L</m:ci>
+			<m:ci>n</m:ci>
+		      </m:apply>
+		    </m:apply>
+		  </m:apply>
+		</m:apply>
+	      </m:apply>
+
+	      <m:apply>
+		<m:ci type="fn"><m:msub>
+		    <m:mi>X</m:mi>
+		    <m:mn>0</m:mn>
+		  </m:msub></m:ci>
+		<m:apply>
+		  <m:times/>
+		  <m:ci>ω</m:ci>
+		  <m:ci>L</m:ci>
+		</m:apply>
+	      </m:apply>
+	    </m:apply>
+	  </m:math>
+	</equation>
+	Since 
+	<m:math>
+	  <m:apply>
+	    <m:ci type="fn"><m:msub>
+		<m:mi>X</m:mi>
+		<m:mn>0</m:mn>
+	      </m:msub></m:ci>
+	    <m:ci><m:msup>
+		<m:mi>ω</m:mi>
+		<m:mo>′</m:mo>
+	      </m:msup></m:ci>
+	  </m:apply>
+	</m:math> is periodic with a period of 
+	<m:math>
+	  <m:apply>
+	    <m:times/>
+	    <m:cn>2</m:cn>
+	    <m:pi/>
+	  </m:apply>
+	</m:math>, 
+	<m:math>
+	  <m:apply>
+	    <m:eq/>
+	    <m:apply>
+	      <m:ci type="fn"><m:msub>
+		  <m:mi>X</m:mi>
+		  <m:mn>0</m:mn>
+		</m:msub></m:ci>
+	      <m:apply>
+		<m:times/>
+		<m:ci>L</m:ci>
+		<m:ci>ω</m:ci>
+	      </m:apply>
+	    </m:apply>
+	    <m:apply>
+	      <m:ci type="fn">Y</m:ci>
+	      <m:ci>ω</m:ci>
+	    </m:apply>
+	  </m:apply>
+	</m:math> is periodic with a period of 
+	<m:math>
+	  <m:apply>
+	    <m:divide/>
+	    <m:apply>
+	      <m:times/>
+	      <m:cn>2</m:cn>
+	      <m:pi/>
+	    </m:apply>
+	    <m:ci>L</m:ci>
+	  </m:apply>
+	</m:math> (see <link target-id="fig2"/>).
+	
+	<figure id="fig2">
+	  <media id="id1169602109851" alt="">
+            <image src="../../media/imag003-194f.png" mime-type="image/png"/>
+            <image for="pdf" src="../../media/imag003-1c0c.eps" mime-type="application/postscript"/>
+          </media>
+	</figure>
+	
+	By inserting zero samples between the samples of 
+	<m:math>
+	  <m:apply>
+	    <m:ci type="fn"><m:msub>
+		<m:mi>x</m:mi>
+		<m:mn>0</m:mn>
+	      </m:msub></m:ci>
+	    <m:ci>n</m:ci>
+	  </m:apply>
+	</m:math>, we obtain a signal with a scaled frequency response
+	that simply replicates 
+	<m:math>
+	  <m:apply>
+	    <m:ci type="fn"><m:msub>
+		<m:mi>X</m:mi>
+		<m:mn>0</m:mn>
+	      </m:msub></m:ci>
+	    <m:ci><m:msup>
+		<m:mi>ω</m:mi>
+		<m:mo>′</m:mo>
+	      </m:msup></m:ci>
+	  </m:apply>
+	</m:math> <m:math><m:ci>L</m:ci></m:math> times over a 
+	<m:math>
+	  <m:apply>
+	    <m:times/>
+	    <m:cn>2</m:cn>
+	    <m:pi/>
+	  </m:apply>
+	</m:math> interval!
+      </para>
+
+      <para id="para2">
+	Obviously, the desired 
+	<m:math>
+	  <m:apply>
+	    <m:ci type="fn"><m:msub>
+		<m:mi>x</m:mi>
+		<m:mn>1</m:mn>
+	      </m:msub></m:ci>
+	    <m:ci>m</m:ci>
+	  </m:apply>
+	</m:math> can be obtained simply by lowpass filtering
+	<m:math>
+	  <m:apply>
+	    <m:ci type="fn">y</m:ci>
+	    <m:ci>m</m:ci>
+	  </m:apply>
+	</m:math> to remove the replicas.
+	<equation id="eqn4">
+	  <m:math display="block">
+	    <m:apply>
+	      <m:eq/>
+	      <m:apply>
+		<m:ci type="fn"><m:msub>
+		    <m:mi>x</m:mi>
+		    <m:mn>1</m:mn>
+		  </m:msub></m:ci>
+		<m:ci>m</m:ci>
+	      </m:apply>
+	      <m:apply>         
+		<m:csymbol definitionURL="http://cnx.rice.edu/cd/cnxmath.ocd#convolve"/>
+		<m:apply>
+		  <m:ci type="fn">y</m:ci>
+		  <m:ci>m</m:ci>
+		</m:apply>
+		<m:apply>
+		  <m:ci type="fn"><m:msub>
+		      <m:mi>h</m:mi>
+		      <m:mi>L</m:mi>
+		    </m:msub></m:ci>
+		  <m:ci>m</m:ci>
+		</m:apply>
+	      </m:apply>
+	    </m:apply>
+	  </m:math>
+	</equation>
+	Given
+
+	<m:math display="block">
+	  <m:apply>
+	    <m:eq/>
+	    <m:apply>
+	      <m:ci type="fn"><m:msub>
+		  <m:mi>H</m:mi>
+		  <m:mi>L</m:mi>
+		</m:msub></m:ci>
+	      <m:ci>m</m:ci>
+	    </m:apply>
+	    <m:piecewise>
+	      <m:piece>
+		<m:cn>1</m:cn>
+		<m:apply>
+		  <m:lt/>
+		  <m:apply>
+		    <m:abs/>
+		    <m:ci>ω</m:ci>
+		  </m:apply>
+		  <m:apply>
+		    <m:divide/>
+		    <m:pi/>
+		    <m:ci>L</m:ci>
+		  </m:apply>
+		</m:apply>
+	      </m:piece>
+	      <m:piece>
+		<m:cn>0</m:cn>
+		<m:apply>
+		  <m:leq/>
+		  <m:apply>
+		    <m:divide/>
+		    <m:pi/>
+		    <m:ci>L</m:ci>
+		  </m:apply>
+		  <m:apply>
+		    <m:abs/>
+		    <m:ci>ω</m:ci>
+		  </m:apply>
+		  <m:pi/>
+		</m:apply>
+	      </m:piece>
+	    </m:piecewise>
+	  </m:apply>
+	</m:math>
+	In practice, a finite-length lowpass filter is designed using
+	any of the methods studied so far (<link target-id="fig3"/>).
+	
+	<figure id="fig3">
+	  <title>Interpolator Block Diagram</title>
+	  <media id="id1169602302055" alt="">
+            <image src="../../media/imag004-ca16.png" mime-type="image/png"/>
+            <image for="pdf" src="../../media/imag004-ab9b.eps" mime-type="application/postscript"/>
+          </media>
+	</figure>
+      </para>
+    </section>
+
+    <section id="section2">
+      <title>Decimation: sampling rate reduction (by an integer factor M)</title>
+      <para id="para3">
+	Let 
+	<m:math>
+	  <m:apply>
+	    <m:eq/>
+	    <m:apply>
+	      <m:ci type="fn">y</m:ci>
+	      <m:ci>m</m:ci>
+	    </m:apply>
+	    <m:apply>
+	      <m:ci type="fn"><m:msub>
+		  <m:mi>x</m:mi>
+		  <m:mn>0</m:mn>
+		</m:msub></m:ci>
+	      <m:apply>
+		<m:times/>
+		<m:ci>L</m:ci>
+		<m:ci>m</m:ci>
+	      </m:apply>
+	    </m:apply>
+	  </m:apply>
+	</m:math> (<link target-id="fig4"/>)
+	
+	<figure id="fig4">
+	  <media id="id1169602434548" alt="">
+            <image src="../../media/imag005-9220.png" mime-type="image/png"/>
+            <image for="pdf" src="../../media/imag005-bab2.eps" mime-type="application/postscript"/>
+          </media>
+	</figure>
+	
+	That is, keep only every <m:math><m:ci>L</m:ci></m:math>th
+	sample (<link target-id="fig5"/>)
+	
+	<figure id="fig5">
+	  <media id="id1169619947461" alt="">
+            <image src="../../media/imag006-623a.png" mime-type="image/png"/>
+            <image for="pdf" src="../../media/imag006-08fe.eps" mime-type="application/postscript"/>
+          </media>
+	</figure>
+
+	In frequency (DTFT):
+	<equation id="eqn5">
+	  <m:math display="block">
+	    <m:apply>
+	      <m:eq/>
+	      <m:apply>
+		<m:ci type="fn">Y</m:ci>
+		<m:ci>ω</m:ci>
+	      </m:apply>
+	      <m:apply>
+		<m:sum/>
+		<m:bvar><m:ci>m</m:ci></m:bvar>
+		<m:lowlimit>
+		  <m:apply>
+		    <m:minus/>
+		    <m:infinity/>
+		  </m:apply>
+		</m:lowlimit>
+		<m:uplimit><m:infinity/></m:uplimit>
+		<m:apply>
+		  <m:times/>
+		  <m:apply>
+		    <m:ci type="fn">y</m:ci>
+		    <m:ci>m</m:ci>
+		  </m:apply>
+		  <m:apply>
+		    <m:exp/>
+		    <m:apply>
+		      <m:minus/>
+		      <m:apply>
+			<m:times/>
+			<m:imaginaryi/>
+			<m:ci>ω</m:ci>
+			<m:ci>m</m:ci>
+		      </m:apply>
+		    </m:apply>
+		  </m:apply>
+		</m:apply>
+	      </m:apply>
+   
+	      <m:apply>
+		<m:sum/>
+		<m:bvar><m:ci>m</m:ci></m:bvar>
+		<m:lowlimit>
+		  <m:apply>
+		    <m:minus/>
+		    <m:infinity/>
+		  </m:apply>
+		</m:lowlimit>
+		<m:uplimit><m:infinity/></m:uplimit>
+		<m:apply>
+		  <m:times/>
+		  <m:apply>
+		    <m:ci type="fn"><m:msub>
+			<m:mi>x</m:mi>
+			<m:mn>0</m:mn>
+		      </m:msub></m:ci>
+		    <m:apply>
+		      <m:times/>
+		      <m:ci>M</m:ci>
+		      <m:ci>m</m:ci>
+		    </m:apply>
+		  </m:apply>
+		  <m:apply>
+		    <m:exp/>
+		    <m:apply>
+		      <m:minus/>
+		      <m:apply>
+			<m:times/>
+			<m:imaginaryi/>
+			<m:ci>ω</m:ci>
+			<m:ci>m</m:ci>
+		      </m:apply>
+		    </m:apply>
+		  </m:apply>
+		</m:apply>
+	      </m:apply>
+
+	      <m:apply>
+		<m:csymbol definitionURL="http://cnx.rice.edu/cd/cnxmath.ocd#evaluateat"/>
+		<m:bvar><m:ci>n</m:ci></m:bvar>
+		<m:lowlimit>
+		  <m:apply>
+		    <m:times/>
+		    <m:ci>M</m:ci>
+		    <m:ci>m</m:ci>
+		  </m:apply>
+		</m:lowlimit> 
+		<m:apply>
+		  <m:sum/>
+		  <m:bvar><m:ci>n</m:ci></m:bvar>
+		  <m:lowlimit>
+		    <m:apply>
+		      <m:minus/>
+		      <m:infinity/>
+		    </m:apply>
+		  </m:lowlimit>
+		  <m:uplimit><m:infinity/></m:uplimit>
+		  <m:apply>
+		    <m:times/>
+		    <m:apply>
+		      <m:ci type="fn"><m:msub>
+			  <m:mi>x</m:mi>
+			  <m:mn>0</m:mn>
+			</m:msub></m:ci>
+		      <m:ci>n</m:ci>
+		    </m:apply>   
+		    <m:apply>
+		      <m:sum/>
+		      <m:bvar><m:ci>k</m:ci></m:bvar>
+		      <m:lowlimit>
+			<m:apply>
+			  <m:minus/>
+			  <m:infinity/>
+			</m:apply>
+		      </m:lowlimit>
+		      <m:uplimit><m:infinity/></m:uplimit>
+		      <m:apply>
+			<m:ci type="fn">δ</m:ci>
+			<m:apply>
+			  <m:minus/>
+			  <m:ci>n</m:ci>
+			  <m:apply>
+			    <m:times/>
+			    <m:ci>M</m:ci>
+			    <m:ci>k</m:ci>
+			  </m:apply>
+			</m:apply>
+		      </m:apply>
+		    </m:apply>
+		    <m:apply>
+		      <m:exp/>
+		      <m:apply>
+			<m:minus/>
+			<m:apply>
+			  <m:times/>
+			  <m:imaginaryi/>
+			  <m:ci>ω</m:ci>
+			  <m:apply>
+			    <m:divide/>
+			    <m:ci>n</m:ci>
+			    <m:ci>M</m:ci>
+			  </m:apply>
+			</m:apply>
+		      </m:apply>
+		    </m:apply>
+		  </m:apply>
+		</m:apply>
+	      </m:apply>
+
+	      <m:apply>
+		<m:csymbol definitionURL="http://cnx.rice.edu/cd/cnxmath.ocd#evaluateat"/>
+		<m:bvar><m:ci><m:msup>
+		  <m:mi>ω</m:mi>
+		  <m:mo>′</m:mo>
+		    </m:msup></m:ci></m:bvar>
+		<m:lowlimit>
+		  <m:apply>
+		    <m:divide/>
+		    <m:ci>ω</m:ci>
+		    <m:ci>M</m:ci>
+		  </m:apply>
+		</m:lowlimit>   
+		<m:apply>
+		  <m:sum/>
+		  <m:bvar><m:ci>n</m:ci></m:bvar>
+		  <m:lowlimit>
+		    <m:apply>
+		      <m:minus/>
+		      <m:infinity/>
+		    </m:apply>
+		  </m:lowlimit>
+		  <m:uplimit><m:infinity/></m:uplimit>
+		  <m:apply>
+		    <m:times/>
+		    <m:apply>
+		      <m:ci type="fn"><m:msub>
+			  <m:mi>x</m:mi>
+			  <m:mn>0</m:mn>
+			</m:msub></m:ci>
+		      <m:ci>n</m:ci>
+		    </m:apply>   
+		    <m:apply>
+		      <m:sum/>
+		      <m:bvar><m:ci>k</m:ci></m:bvar>
+		      <m:lowlimit>
+			<m:apply>
+			  <m:minus/>
+			  <m:infinity/>
+			</m:apply>
+		      </m:lowlimit>
+		      <m:uplimit><m:infinity/></m:uplimit>
+		      <m:apply>
+			<m:ci type="fn">δ</m:ci>
+			<m:apply>
+			  <m:minus/>
+			  <m:ci>n</m:ci>
+			  <m:apply>
+			    <m:times/>
+			    <m:ci>M</m:ci>
+			    <m:ci>k</m:ci>
+			  </m:apply>
+			</m:apply>
+		      </m:apply>
+		    </m:apply>
+		    <m:apply>
+		      <m:exp/>
+		      <m:apply>
+			<m:minus/>
+			<m:apply>
+			  <m:times/>
+			  <m:imaginaryi/>
+			  <m:ci><m:msup>
+			      <m:mi>ω</m:mi>
+			      <m:mo>′</m:mo>
+			    </m:msup></m:ci>
+			  <m:ci>n</m:ci>
+			</m:apply>
+		      </m:apply>
+		    </m:apply>
+		  </m:apply>
+		</m:apply>
+	      </m:apply>
+
+	      <m:apply>         
+		<m:csymbol definitionURL="http://cnx.rice.edu/cd/cnxmath.ocd#convolve"/>
+		<m:apply>
+		  <m:ci type="fn" class="discrete">DTFT</m:ci>
+		  <m:apply>
+		    <m:ci type="fn"><m:msub>
+			<m:mi>x</m:mi>
+			<m:mn>0</m:mn>
+		      </m:msub></m:ci>
+		    <m:ci>n</m:ci>
+		  </m:apply>
+		</m:apply>
+		<m:apply>
+		  <m:ci type="fn" class="discrete">DTFT</m:ci>
+		  <m:apply>
+		    <m:sum/>
+		    <m:apply>
+		      <m:ci type="fn">δ</m:ci>
+		      <m:apply>
+			<m:minus/>
+			<m:ci>n</m:ci>
+			<m:apply>
+			  <m:times/>
+			  <m:ci>M</m:ci>
+			  <m:ci>k</m:ci>
+			</m:apply>
+		      </m:apply>
+		    </m:apply>
+		  </m:apply>
+		</m:apply>
+	      </m:apply>
+	    </m:apply>
+	  </m:math>
+	</equation>
+	Now 
+	<m:math>
+	  <m:apply>
+	    <m:eq/>
+	    <m:apply>
+	      <m:ci type="fn" class="discrete">DTFT</m:ci>
+	      <m:apply>
+		<m:sum/>
+		<m:apply>
+		  <m:ci type="fn">δ</m:ci>
+		  <m:apply>
+		    <m:minus/>
+		    <m:ci>n</m:ci>
+		    <m:apply>
+		      <m:times/>
+		      <m:ci>M</m:ci>
+		      <m:ci>k</m:ci>
+		    </m:apply>
+		  </m:apply>
+		</m:apply>
+	      </m:apply>
+	    </m:apply>
+	    <m:apply>
+	      <m:times/>
+	      <m:cn>2</m:cn>
+	      <m:pi/>
+	      <m:apply>
+		<m:sum/>
+		<m:bvar><m:ci>k</m:ci></m:bvar>
+		<m:lowlimit><m:cn>0</m:cn></m:lowlimit>
+		<m:uplimit>
+		  <m:apply>
+		    <m:minus/>
+		    <m:ci>M</m:ci>
+		    <m:cn>1</m:cn>
+		  </m:apply>
+		</m:uplimit>
+		<m:apply>
+		  <m:times/>
+		  <m:apply>
+		    <m:ci type="fn">X</m:ci>
+		    <m:ci>k</m:ci>
+		  </m:apply>
+		  <m:apply>
+		    <m:ci type="fn">δ</m:ci>
+		    <m:apply>
+		      <m:minus/>
+		      <m:ci><m:msub>
+			  <m:mi>ω</m:mi>
+			  <m:mo>′</m:mo>
+			</m:msub></m:ci>
+		      <m:apply>
+			<m:divide/>
+			<m:apply>
+			  <m:times/>
+			  <m:cn>2</m:cn>
+			  <m:pi/>
+			  <m:ci>k</m:ci>
+			</m:apply>
+			<m:ci>M</m:ci>
+		      </m:apply>
+		    </m:apply>
+		  </m:apply>
+		</m:apply>
+	      </m:apply>
+	    </m:apply>
+	  </m:apply>
+	</m:math> for 
+	<m:math>
+	  <m:apply>
+	    <m:lt/>
+	    <m:apply>
+	      <m:abs/>
+	      <m:ci>ω</m:ci>
+	    </m:apply>
+	    <m:pi/>
+	  </m:apply>
+	</m:math> as shown in homework #1 <!-- cnxn?-->, where 
+	<m:math>
+	  <m:apply>
+	    <m:ci type="fn">X</m:ci>
+	    <m:ci>k</m:ci>
+	  </m:apply>
+	</m:math> is the DFT of one period of the periodic sequence.
+	In this case,
+	<m:math>
+	  <m:apply>
+	    <m:eq/>
+	    <m:apply>
+	      <m:ci type="fn">X</m:ci>
+	      <m:ci>k</m:ci>
+	    </m:apply>
+	    <m:cn>1</m:cn>
+	  </m:apply>
+	</m:math> for 
+	<m:math>
+	  <m:apply>
+	    <m:in/>
+	    <m:ci>k</m:ci>
+	    <m:set>
+	      <m:cn>0</m:cn>
+	      <m:cn>1</m:cn>
+	      <m:ci>…</m:ci>
+	      <m:apply>
+		<m:minus/>
+		<m:ci>M</m:ci>
+		<m:cn>1</m:cn>
+	      </m:apply>
+	    </m:set>
+	  </m:apply>
+	</m:math> and 
+	<m:math>
+	  <m:apply>
+	    <m:eq/>
+	    <m:apply>
+	      <m:ci type="fn" class="discrete">DTFT</m:ci>
+	      <m:apply>
+		<m:sum/>
+		<m:apply>
+		  <m:ci type="fn">δ</m:ci>
+		  <m:apply>
+		    <m:minus/>
+		    <m:ci>n</m:ci>
+		    <m:apply>
+		      <m:times/>
+		      <m:ci>M</m:ci>
+		      <m:ci>k</m:ci>
+		    </m:apply>
+		  </m:apply>
+		</m:apply>
+	      </m:apply>
+	    </m:apply>
+	    <m:apply>
+	      <m:times/>
+	      <m:cn>2</m:cn>
+	      <m:pi/>
+	      <m:apply>
+		<m:sum/>
+		<m:bvar><m:ci>k</m:ci></m:bvar>
+		<m:lowlimit><m:cn>0</m:cn></m:lowlimit>
+		<m:uplimit>
+		  <m:apply>
+		    <m:minus/>
+		    <m:ci>M</m:ci>
+		    <m:cn>1</m:cn>
+		  </m:apply>
+		</m:uplimit>
+		<m:apply>
+		  <m:ci type="fn">δ</m:ci>
+		  <m:apply>
+		    <m:minus/>
+		    <m:ci><m:msub>
+			<m:mi>ω</m:mi>
+			<m:mo>′</m:mo>
+		      </m:msub></m:ci>
+		    <m:apply>
+		      <m:divide/>
+		      <m:apply>
+			<m:times/>
+			<m:cn>2</m:cn>
+			<m:pi/>
+			<m:ci>k</m:ci>
+		      </m:apply>
+		      <m:ci>M</m:ci>
+		    </m:apply>
+		  </m:apply>
+		</m:apply>
+	      </m:apply>
+	    </m:apply>
+	  </m:apply>
+	</m:math>.
+
+	<equation id="eqn6">
+	  <m:math>
+	    <m:apply>
+	      <m:eq/>
+	      <m:apply>         
+		<m:csymbol definitionURL="http://cnx.rice.edu/cd/cnxmath.ocd#convolve"/>
+		<m:apply>
+		  <m:ci type="fn" class="discrete">DTFT</m:ci>
+		  <m:apply>
+		    <m:ci type="fn"><m:msub>
+			<m:mi>x</m:mi>
+			<m:mn>0</m:mn>
+		      </m:msub></m:ci>
+		    <m:ci>n</m:ci>
+		  </m:apply>
+		</m:apply>
+		<m:apply>
+		  <m:ci type="fn" class="discrete">DTFT</m:ci>
+		  <m:apply>
+		    <m:sum/>
+		    <m:apply>
+		      <m:ci type="fn">δ</m:ci>
+		      <m:apply>
+			<m:minus/>
+			<m:ci>n</m:ci>
+			<m:apply>
+			  <m:times/>
+			  <m:ci>M</m:ci>
+			  <m:ci>k</m:ci>
+			</m:apply>
+		      </m:apply>
+		    </m:apply>
+		  </m:apply>
+		</m:apply>
+	      </m:apply>
+
+	      <m:apply>       
+		<m:csymbol definitionURL="http://cnx.rice.edu/cd/cnxmath.ocd#convolve"/>
+		<m:apply>
+		  <m:ci type="fn"><m:msub>
+		      <m:mi>X</m:mi>
+		      <m:mn>0</m:mn>
+		    </m:msub></m:ci>
+		  <m:ci><m:msup>
+		      <m:mi>ω</m:mi>
+		      <m:mo>′</m:mo>
+		    </m:msup></m:ci>
+		</m:apply>
+		<m:apply>
+		  <m:times/>
+		  <m:cn>2</m:cn>
+		  <m:pi/>
+		  <m:apply>
+		    <m:sum/>
+		    <m:bvar><m:ci>k</m:ci></m:bvar>
+		    <m:lowlimit><m:cn>0</m:cn></m:lowlimit>
+		    <m:uplimit>
+		      <m:apply>
+			<m:minus/>
+			<m:ci>M</m:ci>
+			<m:cn>1</m:cn>
+		      </m:apply>
+		    </m:uplimit>
+		    <m:apply>
+		      <m:ci type="fn">δ</m:ci>
+		      <m:apply>
+			<m:minus/>
+			<m:ci><m:msub>
+			    <m:mi>ω</m:mi>
+			    <m:mo>′</m:mo>
+			  </m:msub></m:ci>
+			<m:apply>
+			  <m:divide/>
+			  <m:apply>
+			    <m:times/>
+			    <m:cn>2</m:cn>
+			    <m:pi/>
+			    <m:ci>k</m:ci>
+			  </m:apply>
+			  <m:ci>M</m:ci>
+			</m:apply>
+		      </m:apply>
+		    </m:apply>
+		  </m:apply>
+		</m:apply>
+	      </m:apply>
+
+	      <m:apply>
+		<m:times/>
+		<m:apply>
+		  <m:divide/>
+		  <m:cn>1</m:cn>
+		  <m:apply>
+		    <m:times/>
+		    <m:cn>2</m:cn>
+		    <m:pi/>
+		  </m:apply>
+		</m:apply>
+		<m:apply>
+		  <m:int/>
+		  <m:bvar><m:ci><m:msup>
+			<m:mi>μ</m:mi>
+			<m:mo>′</m:mo>
+		      </m:msup></m:ci></m:bvar>
+		  <m:lowlimit>
+		    <m:apply>
+		      <m:minus/>
+		      <m:pi/>
+		    </m:apply>
+		  </m:lowlimit>
+		  <m:uplimit><m:pi/></m:uplimit>
+		  <m:apply>
+		    <m:times/>
+		    <m:apply>
+		      <m:ci type="fn"><m:msub>
+			  <m:mi>X</m:mi>
+			  <m:mn>0</m:mn>
+			</m:msub></m:ci>
+		      <m:ci><m:msup>
+			  <m:mi>μ</m:mi>
+			  <m:mo>′</m:mo>
+			</m:msup></m:ci>
+		    </m:apply>
+		    <m:apply>
+		      <m:times/>
+		      <m:cn>2</m:cn>
+		      <m:pi/>
+		      <m:apply>
+			<m:sum/>
+			<m:bvar><m:ci>k</m:ci></m:bvar>
+			<m:lowlimit><m:cn>0</m:cn></m:lowlimit>
+			<m:uplimit>
+			  <m:apply>
+			    <m:minus/>
+			    <m:ci>M</m:ci>
+			    <m:cn>1</m:cn>
+			  </m:apply>
+			</m:uplimit>
+			<m:apply>
+			  <m:ci type="fn">δ</m:ci>
+			  <m:apply>
+			    <m:minus/>
+			    <m:apply>
+			      <m:minus/>
+			      <m:ci><m:msub>
+				  <m:mi>ω</m:mi>
+				  <m:mo>′</m:mo>
+				</m:msub></m:ci>
+			      <m:ci><m:msub>
+				  <m:mi>μ</m:mi>
+				  <m:mo>′</m:mo>
+				</m:msub></m:ci>
+			    </m:apply>
+			    <m:apply>
+			      <m:divide/>
+			      <m:apply>
+				<m:times/>
+				<m:cn>2</m:cn>
+				<m:pi/>
+				<m:ci>k</m:ci>
+			      </m:apply>
+			      <m:ci>M</m:ci>
+			    </m:apply>
+			  </m:apply>
+			</m:apply>
+		      </m:apply>
+		    </m:apply>
+		  </m:apply>
+		</m:apply>
+	      </m:apply>
+
+	      <m:apply>
+		<m:sum/>
+		<m:bvar><m:ci>k</m:ci></m:bvar>
+		<m:lowlimit><m:cn>0</m:cn></m:lowlimit>
+		<m:uplimit>
+		  <m:apply>
+		    <m:minus/>
+		    <m:ci>M</m:ci>
+		    <m:cn>1</m:cn>
+		  </m:apply>
+		</m:uplimit>
+		<m:apply>
+		  <m:ci type="fn"><m:msub>
+		      <m:mi>X</m:mi>
+		      <m:mn>0</m:mn>
+		    </m:msub></m:ci>
+		  <m:apply>
+		    <m:minus/>
+		    <m:ci><m:msub>
+			<m:mi>ω</m:mi>
+			<m:mo>′</m:mo>
+		      </m:msub></m:ci>
+		    <m:apply>
+		      <m:divide/>
+		      <m:apply>
+			<m:times/>
+			<m:cn>2</m:cn>
+			<m:pi/>
+			<m:ci>k</m:ci>
+		      </m:apply>
+		      <m:ci>M</m:ci>
+		    </m:apply>
+		  </m:apply>
+		</m:apply>
+	      </m:apply>
+	      
+	    </m:apply>
+	  </m:math>
+	</equation>
+	so 
+	<m:math>
+	  <m:apply>
+	    <m:eq/>
+	    <m:apply>
+	      <m:ci type="fn">Y</m:ci>
+	      <m:ci>ω</m:ci>
+	    </m:apply>
+
+	    <m:apply>
+	      <m:sum/>
+	      <m:bvar><m:ci>k</m:ci></m:bvar>
+	      <m:lowlimit><m:cn>0</m:cn></m:lowlimit>
+	      <m:uplimit>
+		<m:apply>
+		  <m:minus/>
+		  <m:ci>M</m:ci>
+		  <m:cn>1</m:cn>
+		</m:apply>
+	      </m:uplimit>
+	      <m:apply>
+		<m:ci type="fn"><m:msub>
+		    <m:mi>X</m:mi>
+		    <m:mn>0</m:mn>
+		  </m:msub></m:ci>
+		<m:apply>
+		  <m:minus/>
+		  <m:apply>
+		    <m:divide/>
+		    <m:ci>ω</m:ci>
+		    <m:ci>M</m:ci>
+		  </m:apply>
+		  <m:apply>
+		    <m:divide/>
+		    <m:apply>
+		      <m:times/>
+		      <m:cn>2</m:cn>
+		      <m:pi/>
+		      <m:ci>k</m:ci>
+		    </m:apply>
+		    <m:ci>M</m:ci>
+		  </m:apply>
+		</m:apply>
+	      </m:apply>
+	    </m:apply>
+	  </m:apply>
+	</m:math> <foreign>i.e.</foreign>, we get <term>digital
+	aliasing</term>.(<link target-id="fig6"/>)
+	
+	<figure id="fig6">
+	  <media id="id1169606383943" alt="">
+            <image src="../../media/imag007.png" mime-type="image/png"/>
+            <image for="pdf" src="../../media/imag007.eps" mime-type="application/postscript"/>
+          </media>
+	</figure>
+
+	Usually, we prefer not to have aliasing, so the downsampler
+	is preceded by a lowpass filter to remove all frequency
+	components above 
+	<m:math>
+	  <m:apply>
+	    <m:lt/>
+	    <m:apply>
+	      <m:abs/>
+	      <m:ci>ω</m:ci>
+	    </m:apply>
+	    <m:apply>
+	      <m:divide/>
+	      <m:pi/>
+	      <m:ci>M</m:ci>
+	    </m:apply>
+	  </m:apply>
+	</m:math>
+	(<link target-id="fig7"/>).
+	
+	<figure id="fig7">
+	  <media id="id1169614553530" alt="">
+            <image src="../../media/imag008.png" mime-type="image/png"/>
+            <image for="pdf" src="../../media/imag008.eps" mime-type="application/postscript"/>
+          </media>
+	</figure>
+      </para>
+    </section>
+
+    <section id="section3">
+      <title>Rate-Changing by a Rational Fraction L/M</title>
+      <para id="para">
+	This is easily accomplished by interpolating by a factor of
+	<m:math><m:ci>L</m:ci></m:math>, then decimating by a factor
+	of <m:math><m:ci>M</m:ci></m:math> (<link target-id="fig8"/>).
+	
+	<figure id="fig8">
+	  <media id="id1169611924488" alt="">
+            <image src="../../media/imag009.png" mime-type="image/png"/>
+            <image for="pdf" src="../../media/imag009.eps" mime-type="application/postscript"/>
+          </media>
+	</figure>
+	
+	The two lowpass filters can be combined into one LP filter
+	with the lower cutoff,
+	<m:math display="block">
+	  <m:apply>
+	    <m:eq/>
+	    <m:apply>
+	      <m:ci type="fn">H</m:ci>
+	      <m:ci>ω</m:ci>
+	    </m:apply>
+	    <m:piecewise>
+	      <m:piece>
+		<m:cn>1</m:cn>
+		<m:apply>
+		  <m:lt/>
+		  <m:apply>
+		    <m:abs/>
+		    <m:ci>ω</m:ci>
+		  </m:apply>
+		  <m:apply>
+		    <m:divide/>
+		    <m:pi/>
+		    <m:apply>
+		      <m:max/>
+		      <m:ci>L</m:ci>
+		      <m:ci>M</m:ci>
+		    </m:apply>
+		  </m:apply>
+		</m:apply>
+	      </m:piece>
+	      <m:piece>
+		<m:cn>0</m:cn>
+		<m:apply>
+		  <m:leq/>
+		  <m:apply>
+		    <m:divide/>
+		    <m:pi/>
+		    <m:apply>
+		      <m:max/>
+		      <m:ci>L</m:ci>
+		      <m:ci>M</m:ci>
+		    </m:apply>
+		  </m:apply>
+		  <m:apply>
+		    <m:abs/>
+		    <m:ci>ω</m:ci>
+		  </m:apply>
+		  <m:pi/>
+		</m:apply>
+	      </m:piece>
+	    </m:piecewise>
+	  </m:apply>
+	</m:math>
+	Obviously, the computational complexity and simplicity of
+	implementation will depend on
+	<m:math>
+	  <m:apply>
+	    <m:divide/>
+	    <m:ci>L</m:ci>
+	    <m:ci>M</m:ci>
+	  </m:apply>
+	</m:math>:  
+	<m:math>
+	  <m:cn type="rational">2<m:sep/>3</m:cn>
+	</m:math>
+	will be easier to implement than 
+	<m:math>
+	  <m:cn type="rational">1061<m:sep/>1060</m:cn>
+	</m:math>!
+      </para>
+    </section>
+
+  </content>
+  
+</document>
